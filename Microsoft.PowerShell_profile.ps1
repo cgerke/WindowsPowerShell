@@ -8,9 +8,10 @@ $PSDirectory = (Get-Item $profile).DirectoryName
 
 <# Alias / 1-Liner #>
 ${function:~} = { Set-Location ~ }
-${function:Set-ParentLocation} = { Set-Location .. }; Set-Alias ".." Set-ParentLocation
-${function:Reload-Powershell} = { & $profile }
+${function:Get-Fun} = { Get-ChildItem function:\ | select-String "-" | ForEach-Object { Get-Help $_ } | Format-Table -Property Name, Synopsis }
 ${function:Get-Sudo} = { Start-Process powershell -ArgumentList "-executionpolicy bypass" -Verb RunAs }
+${function:Reload-Powershell} = { & $profile }
+${function:Set-ParentLocation} = { Set-Location .. }; Set-Alias ".." Set-ParentLocation
 
 <# PATH #>
 function Set-EnvPath([string] $path ) {
