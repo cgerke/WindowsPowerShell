@@ -1,1 +1,2 @@
 # WindowsPowerShell
+$profile
