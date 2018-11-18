@@ -57,13 +57,21 @@ function Test-RegistryValue {
 }
 <# End Profile Helpers #>
 
-<# . Source #>
+#region source
 Push-Location (Split-Path -parent $profile)
 "organisation" | Where-Object {Test-Path "Microsoft.PowerShell_$_.ps1"} | ForEach-Object -process {
     Invoke-Expression ". .\Microsoft.PowerShell_$_.ps1"; Write-Host Microsoft.PowerShell_$_.ps1
 }
 Pop-Location
-<# End . Source #>
+#endregion source
+
+#region git
+Push-Location (Split-Path -parent $profile)
+Get-ChildItem .\bin\ | Where-Object {Test-Path .git*} | ForEach-Object -process {
+    If (-Not (Test-Path $_)) { Copy-Item .\bin\$_ $env:USERPROFILE }
+}
+Pop-Location
+#endregion git
 
 <# Support Helpers #>
 function Get-ADMemberCSV {
