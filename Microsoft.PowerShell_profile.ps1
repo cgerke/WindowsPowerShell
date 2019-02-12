@@ -58,7 +58,7 @@ function Test-RegistryValue {
 <# End Profile Helpers #>
 
 #region source
-Push-Location (Split-Path -parent $profile)
+Push-Location ($PSDirectory)
 "organisation" | Where-Object {Test-Path "Microsoft.PowerShell_$_.ps1"} | ForEach-Object -process {
     Invoke-Expression ". .\Microsoft.PowerShell_$_.ps1"; Write-Host Microsoft.PowerShell_$_.ps1
 }
