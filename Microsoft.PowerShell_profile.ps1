@@ -217,13 +217,17 @@ function Get-PowershellAs {
     Optional parameter to run elevated (UAC).
     #>
     param (
-        [Parameter(Mandatory=$True)]
-        [ValidateNotNullOrEmpty()]$UserObj,
+        [Parameter(Mandatory=$false)]
+        [string]$UserObj=$Defaults.PowershellAs[0].Username,
         [Parameter(Mandatory=$false)]
         [Switch]$SystemObj,
         [Parameter(Mandatory=$false)]
         [Switch]$ElevatedObj
     )
+    
+    if (-not($PSBoundParameters.ContainsKey('UserObj')) -and $UserObj) {
+        Write-Host "User relied on default value. We should really test the key exists in case there is no JSON"
+    }
 
     $DomainObj = (Get-WmiObject Win32_ComputerSystem).Domain
     if ( $DomainObj -eq 'WORKGROUP' ){
