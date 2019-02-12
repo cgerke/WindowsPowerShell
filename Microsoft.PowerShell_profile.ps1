@@ -65,6 +65,13 @@ Push-Location ($PSDirectory)
 Pop-Location
 #endregion source
 
+#region defaults
+# Saved state defaults, think about testing in funcs etc
+$Defaults = Get-Content (Join-Path -Path $PSDirectory -ChildPath "Microsoft.PowerShell_options.json") | ConvertFrom-Json
+#$JsonObject.Defaults[0]
+$Defaults.AdminAccount[0].Username
+#end region defaults
+
 #region git
 Push-Location (Split-Path -parent $profile)
 Get-ChildItem .\bin\ | Where-Object {Test-Path .git*} | ForEach-Object -process {
