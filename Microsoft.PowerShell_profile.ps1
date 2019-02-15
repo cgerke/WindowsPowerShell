@@ -184,17 +184,47 @@ function Get-LAPSExpiry{
     $PwdExp = Get-ADComputer $ComputerObj -Properties ms-MCS-AdmPwdExpirationTime
     $([datetime]::FromFileTime([convert]::ToInt64($PwdExp.'ms-MCS-AdmPwdExpirationTime',10)))
 }
+
 function Get-MSIProdCode {
     <#
     .SYNOPSIS
-    List all installed msi product codes.
-    .DESCRIPTION
-    List all installed msi product codes.
+        Retrieves a list of all installed software UNINSTALL msi product codes.
     .EXAMPLE
-    Get-MSIProdCode
+        This example retrieves all installed software UNINSTALL msi product codes.
+        Get-MSIProdCode
+    .EXAMPLE
+        This example retrieves all installed software UNINSTALL msi product codes including 'Office' in the display name.
+        Get-MSIProdCode -DisplayName "Office"
+    .PARAMETER Name
+        The software title you'd like to limit the query to.
     #>
-    get-wmiobject Win32_Product | Format-Table IdentifyingNumber, Name | Out-String -stream
-    Write-Host "`nFilter with (sls) : | Select-String 'STRING'`n"
+    [OutputType([System.Management.Automation.PSObject])]
+    [CmdletBinding()]
+    param (
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]$DisplayName
+    )
+
+    $UninstallKeys = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall", "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
+    $null = New-PSDrive -Name HKU -PSProvider Registry -Root Registry::HKEY_USERS
+    foreach ($UninstallKey in $UninstallKeys) {
+        if ($PSBoundParameters.ContainsKey('DisplayName')) {
+            $WhereBlock = { ($_.PSChildName -match '^{[A-Z0-9]{8}-([A-Z0-9]{4}-){3}[A-Z0-9]{12}}$') -and ($_.GetValue('DisplayName') -like "*$DisplayName*") }
+        }
+        else {
+            $WhereBlock = { ($_.PSChildName -match '^{[A-Z0-9]{8}-([A-Z0-9]{4}-){3}[A-Z0-9]{12}}$') -and ($_.GetValue('DisplayName')) }
+        }
+        $gciParams = @{
+            Path        = $UninstallKey
+            ErrorAction = 'SilentlyContinue'
+        }
+        $selectProperties = @(
+            @{n = 'GUID'; e = {$_.PSChildName}}, 
+            @{n = 'Name'; e = {$_.GetValue('DisplayName')}}
+        )
+        Get-ChildItem @gciParams | Where-Object $WhereBlock | Select-Object -Property $selectProperties
+    }
 }
 
 function Get-PowershellAs {
