@@ -85,7 +85,7 @@ function Get-Sandbox {
 function Get-Ssh {
     Start-Process -FilePath powershell.exe -ArgumentList {
         -noprofile
-        Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH.Client*' | Add-WindowsCapability -Online
+        Get-WindowsCapability -Online | Where-Object Name -like "OpenSSH.Client*" | Add-WindowsCapability -Online
     } -verb RunAs
 }
 
@@ -215,7 +215,9 @@ function Get-MSIProdCode {
         [ValidateNotNullOrEmpty()]
         [string]$DisplayName
     )
-
+    
+    # old way
+    # get-wmiobject Win32_Product | Format-Table IdentifyingNumber, Name | Out-String -stream
     $UninstallKeys = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall", "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
     $null = New-PSDrive -Name HKU -PSProvider Registry -Root Registry::HKEY_USERS
     foreach ($UninstallKey in $UninstallKeys) {
