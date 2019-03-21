@@ -152,22 +152,6 @@ function Get-FilePathLength {
         Sort-Object -Property FullNameLength -Descending
 }
 
-function Get-Log {
-    <#
-    .SYNOPSIS
-    Captain's log.
-    .DESCRIPTION
-    A running commentary of interesting events.
-    .EXAMPLE
-    Get-Log
-    #>
-    try {
-        notepad "$PSDirectory\log.txt"
-    } catch {
-        return $false
-    }
-}; Set-Alias qq Get-Log
-
 function Get-LAPS {
     <#
     .SYNOPSIS
@@ -359,68 +343,3 @@ function prompt {
     $LASTEXITCODE = $origLastExitCode
     "`n$('PS>' * ($nestedPromptLevel + 1)) "
 }
-
-<# Notes #>
-
-# Build a better function
-# https://technet.microsoft.com/en-us/library/hh360993.aspx?f=255&MSPPError=-2147217396
-
-# Research ways of using execution policy
-# Set-ExecutionPolicy RemoteSigned -scope CurrentUser
-
-# function Get-evtx {
-#     wevtutil epl application c:\temp\application.evtx
-# }
-
-# function Get_Health {
-#     DISM /Online /Cleanup-Image /CheckHealth
-#     DISM /Online /Cleanup-Image /ScanHealth
-#     DISM /Online /Cleanup-Image /RestoreHealth
-# }
-
-# function Get-Remote {
-#     Start-Process C:\Windows\CmRcViewer.exe
-# }
-
-# function Get-Uptime {
-#     (Get-Date)-(Get-CimInstance Win32_OperatingSystem).lastbootuptime | Format-Table
-# }
-
-# function Get-Documentation {
-#     <#
-#     .SYNOPSIS
-#     Quick access to edit documentation.
-#     .DESCRIPTION
-#     Lightweight documentation.
-#     .EXAMPLE
-#     Get-Documentation -DocObj printers
-#     .PARAMETER DocObj
-#     The document name. Just one.
-#     #>
-#     param (
-#         [parameter(Mandatory=$true)]
-#         [ValidateNotNullOrEmpty()]$DocObj
-#     )
-#     try {
-#         Import-Csv "$PSDirectory\$DocObj.txt" | Format-Table | Out-String -stream
-#         Write-Host "`nFilter with (sls) : | Select-String 'STRING'`n"
-#     } catch {
-#         Write-Host "No such document."
-#         return $false
-#     }
-
-# }; Set-Alias gd Get-Documentation
-
-# SSH
-# Test pipe
-#Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH.Client*' | Add-WindowsCapability -Online
-# Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH*'
-
-# Install the OpenSSH Client
-#Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
-
-# Install the OpenSSH Server
-# Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
-
-# Find the powershell way
-# msinfo32 /nfo C:\TEMP\SYSSUM.NFO /categories +systemsummary
