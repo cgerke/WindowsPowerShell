@@ -75,12 +75,21 @@ $Defaults.AdminAccount[0].Username
 #region essentials
 function Get-Sandbox {
     Start-Process -FilePath powershell.exe -ArgumentList {
+        -noprofile
         Enable-WindowsOptionalFeature -FeatureName "Containers-DisposableClientVM" -All -Online
+    } -verb RunAs
+}
+
+function Get-Ssh {
+    Start-Process -FilePath powershell.exe -ArgumentList {
+        -noprofile
+        Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH.Client*' | Add-WindowsCapability -Online
     } -verb RunAs
 }
 
 function Get-Telnet {
     Start-Process -FilePath powershell.exe -ArgumentList {
+        -noprofile
         Get-WindowsOptionalFeature -Online -FeatureName "TelnetClient"
         Enable-WindowsOptionalFeature -Online -FeatureName "TelnetClient"
     } -verb RunAs
