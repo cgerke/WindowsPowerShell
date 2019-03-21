@@ -13,6 +13,9 @@ ${function:Get-Fun} = { Get-ChildItem function:\ | select-String "-" | ForEach-O
 ${function:Get-Sudo} = { Start-Process powershell -ArgumentList "-executionpolicy bypass" -Verb RunAs }
 ${function:Reload-Powershell} = { & $profile }
 ${function:Set-ParentLocation} = { Set-Location .. }; Set-Alias ".." Set-ParentLocation
+${function:Get-Sandbox} = { Start-Process powershell -ArgumentList 'Enable-WindowsOptionalFeature -FeatureName "Containers-DisposableClientVM" -All -Online' -Verb runAs }
+${function:Get-Telnet} = { Start-Process powershell -ArgumentList 'Get-WindowsOptionalFeature -Online -FeatureName TelnetClient' -Verb runAs }
+${function:Enable-Telnet} = { Get-Telnet; Start-Process powershell -ArgumentList 'Enable-WindowsOptionalFeature -Online -FeatureName TelnetClient' -Verb runAs }
 
 <# PATH #>
 function Set-EnvPath([string] $path ) {
