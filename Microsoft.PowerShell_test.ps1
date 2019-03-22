@@ -38,12 +38,6 @@ tr:nth-child(odd) { background: #b8d1f3; }
     }
 }
 
-function Reset-Google {
-    If (Test-Path 'HKCU:\Software\Policies\Google') {
-        sudo Remove-Item -Path "HKCU:\Software\Policies\Google" -Confirm
-    }
-}
-
 # File sharing helpers
  function Enable-FPS {
     netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
@@ -123,13 +117,6 @@ function Get-WIFI($SSID) {
 function Remove-WIFI($SSID) {
    (netsh wlan delete profile name=$SSID)
 } 
-
-# Reload ps on-demand
-function Restart-Powershell {
-    $newProcess = new-object System.Diagnostics.ProcessStartInfo "PowerShell";
-    [System.Diagnostics.Process]::Start($newProcess);
-    exit
-}
 
 # Reset offline files database
 function Reset-Offline {
@@ -307,27 +294,6 @@ function Get-Ping
 }
 
 <# Bootstrap #>
-function Set-Bootstrap{
-    #Windows Registry Editor Version 5.00
-    #
-    #[HKEY_CURRENT_USER\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-    #"ShowSecondsInSystemClock"=dword:00000001
-    Push-Location
-    Set-Location HKCU:
-    New-ItemProperty ".\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -name "ShowSecondsInSystemClock" -Value 1 -PropertyType "DWord"
-    Set-ItemProperty ".\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -name "ShowSecondsInSystemClock" -Value 1
-    Pop-Location
-
-    #Windows Registry Editor Version 5.00
-    #
-    #[HKEY_CURRENT_USER\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-    #"ShowSecondsInSystemClock"=dword:00000001
-    Push-Location
-    Set-Location HKLM:
-    New-ItemProperty ".\Software\Microsoft\Windows\CurrentVersion\Explorer" -name "drivelettersfirst" -Value 1 -PropertyType "DWord"
-    Set-ItemProperty ".\Software\Microsoft\Windows\CurrentVersion\Explorer" -name "drivelettersfirst" -Value 1
-    Pop-Location
-}
 
 function Test-DA {
     Write-Host "----------------------------------"

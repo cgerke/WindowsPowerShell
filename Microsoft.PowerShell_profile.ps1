@@ -24,9 +24,9 @@ function Set-EnvPath([string] $path ) {
     }
  }
 
-<# Profile Helpers #>
+#region helpers
 function Get-Profile {
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/cgerke/dotfiles/master/Microsoft.PowerShell_profile.ps1" -OutFile "$profile"
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/cgerke/WindowsPowerShell/master/Microsoft.PowerShell_profile.ps1" -OutFile "$profile"
 }
 
 function Restart-Powershell {
@@ -55,15 +55,48 @@ function Test-RegistryValue {
         return $false
     }
 }
-<# End Profile Helpers #>
+#endregion helpers
 
 #region source
-Push-Location (Split-Path -parent $profile)
+Push-Location ($PSDirectory)
 "organisation" | Where-Object {Test-Path "Microsoft.PowerShell_$_.ps1"} | ForEach-Object -process {
     Invoke-Expression ". .\Microsoft.PowerShell_$_.ps1"; Write-Host Microsoft.PowerShell_$_.ps1
 }
 Pop-Location
 #endregion source
+
+#region defaults
+$json = Join-Path -Path $PSDirectory -ChildPath "Microsoft.PowerShell_options.json"
+if ( Test-Path -path $json ) {
+    $Defaults = Get-Content $json | ConvertFrom-Json
+    $JsonObject.Defaults[0]
+    $Defaults.AdminAccount[0].Username
+}
+#end region defaults
+
+#region essentials
+function Get-Sandbox {
+    Start-Process -FilePath powershell.exe -ArgumentList {
+        -noprofile
+        Enable-WindowsOptionalFeature -FeatureName "Containers-DisposableClientVM" -All -Online
+    } -verb RunAs
+}
+
+function Get-Ssh {
+    Start-Process -FilePath powershell.exe -ArgumentList {
+        -noprofile
+        Get-WindowsCapability -Online | Where-Object Name -like "OpenSSH.Client*" | Add-WindowsCapability -Online
+    } -verb RunAs
+}
+
+function Get-Telnet {
+    Start-Process -FilePath powershell.exe -ArgumentList {
+        -noprofile
+        Get-WindowsOptionalFeature -Online -FeatureName "TelnetClient"
+        Enable-WindowsOptionalFeature -Online -FeatureName "TelnetClient"
+    } -verb RunAs
+}
+#end region essentials
 
 #region git
 Push-Location (Split-Path -parent $profile)
@@ -98,80 +131,6 @@ function Get-ADMemberCSV {
     }
 }
 
-function Import-Excel
-{
-  param (
-    [string]$FileName,
-    [string]$WorksheetName,
-    [bool]$DisplayProgress = $true
-  )
-
-  if ($FileName -eq "") {
-    throw "Please provide path to the Excel file"
-    Exit
-  }
-
-  if (-not (Test-Path $FileName)) {
-    throw "Path '$FileName' does not exist."
-    exit
-  }
-
-  #$FileName = Resolve-Path $FileName
-  $excel = New-Object -com "Excel.Application"
-  $excel.Visible = $false
-  $workbook = $excel.workbooks.open($FileName)
-
-  if (-not $WorksheetName) {
-    Write-Warning "Defaulting to the first worksheet in workbook."
-    $sheet = $workbook.ActiveSheet
-  } else {
-    $sheet = $workbook.Sheets.Item($WorksheetName)
-  }
-  
-  if (-not $sheet)
-  {
-    throw "Unable to open worksheet $WorksheetName"
-    exit
-  }
-  
-  $sheetName = $sheet.Name
-  $columns = $sheet.UsedRange.Columns.Count
-  $lines = $sheet.UsedRange.Rows.Count
-  
-  Write-Warning "Worksheet $sheetName contains $columns columns and $lines lines of data"
-  
-  $fields = @()
-  
-  for ($column = 1; $column -le $columns; $column ++) {
-    $fieldName = $sheet.Cells.Item.Invoke(1, $column).Value2
-    if ($fieldName -eq $null) {
-      $fieldName = "Column" + $column.ToString()
-    }
-    $fields += $fieldName
-  }
-  
-  $line = 2
-  
-  for ($line = 2; $line -le $lines; $line ++) {
-    $values = New-Object object[] $columns
-    for ($column = 1; $column -le $columns; $column++) {
-      $values[$column - 1] = $sheet.Cells.Item.Invoke($line, $column).Value2
-    }  
-  
-    $row = New-Object psobject
-    $fields | foreach-object -begin {$i = 0} -process {
-      $row | Add-Member -MemberType noteproperty -Name $fields[$i] -Value $values[$i]; $i++
-    }
-    $row
-    $percents = [math]::round((($line/$lines) * 100), 0)
-    if ($DisplayProgress) {
-      Write-Progress -Activity:"Importing from Excel file $FileName" -Status:"Imported $line of total $lines lines ($percents%)" -PercentComplete:$percents
-    }
-  }
-  $workbook.Close()
-  $excel.Quit()
-}
-
 function Get-FilePathLength {
     <#
     .SYNOPSIS
@@ -192,22 +151,6 @@ function Get-FilePathLength {
         Select-Object -Property FullName, @{Name="FullNameLength";Expression={($_.FullName.Length)}} |
         Sort-Object -Property FullNameLength -Descending
 }
-
-function Get-Log {
-    <#
-    .SYNOPSIS
-    Captain's log.
-    .DESCRIPTION
-    A running commentary of interesting events.
-    .EXAMPLE
-    Get-Log
-    #>
-    try {
-        notepad "$PSDirectory\log.txt"
-    } catch {
-        return $false
-    }
-}; Set-Alias qq Get-Log
 
 function Get-LAPS {
     <#
@@ -251,17 +194,77 @@ function Get-LAPSExpiry{
     $PwdExp = Get-ADComputer $ComputerObj -Properties ms-MCS-AdmPwdExpirationTime
     $([datetime]::FromFileTime([convert]::ToInt64($PwdExp.'ms-MCS-AdmPwdExpirationTime',10)))
 }
+
 function Get-MSIProdCode {
     <#
     .SYNOPSIS
-    List all installed msi product codes.
-    .DESCRIPTION
-    List all installed msi product codes.
+        Retrieves a list of all installed software UNINSTALL msi product codes.
     .EXAMPLE
-    Get-MSIProdCode
+        This example retrieves all installed software UNINSTALL msi product codes.
+        Get-MSIProdCode
+    .EXAMPLE
+        This example retrieves all installed software UNINSTALL msi product codes including 'Office' in the display name.
+        Get-MSIProdCode -DisplayName "Office"
+    .PARAMETER Name
+        The software title you'd like to limit the query to.
     #>
-    get-wmiobject Win32_Product | Format-Table IdentifyingNumber, Name | Out-String -stream
-    Write-Host "`nFilter with (sls) : | Select-String 'STRING'`n"
+    [OutputType([System.Management.Automation.PSObject])]
+    [CmdletBinding()]
+    param (
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]$DisplayName
+    )
+    
+    # old way
+    # get-wmiobject Win32_Product | Format-Table IdentifyingNumber, Name | Out-String -stream
+    $UninstallKeys = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall", "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
+    $null = New-PSDrive -Name HKU -PSProvider Registry -Root Registry::HKEY_USERS
+    foreach ($UninstallKey in $UninstallKeys) {
+        if ($PSBoundParameters.ContainsKey('DisplayName')) {
+            $WhereBlock = { ($_.PSChildName -match '^{[A-Z0-9]{8}-([A-Z0-9]{4}-){3}[A-Z0-9]{12}}$') -and ($_.GetValue('DisplayName') -like "*$DisplayName*") }
+        }
+        else {
+            $WhereBlock = { ($_.PSChildName -match '^{[A-Z0-9]{8}-([A-Z0-9]{4}-){3}[A-Z0-9]{12}}$') -and ($_.GetValue('DisplayName')) }
+        }
+        $gciParams = @{
+            Path        = $UninstallKey
+            ErrorAction = 'SilentlyContinue'
+        }
+        $selectProperties = @(
+            @{n = 'GUID'; e = {$_.PSChildName}}, 
+            @{n = 'Name'; e = {$_.GetValue('DisplayName')}}
+        )
+        Get-ChildItem @gciParams | Where-Object $WhereBlock | Select-Object -Property $selectProperties
+    }
+}
+
+function Get-DotNet {
+    $Lookup = @{
+        378389 = [version]'4.5'
+        378675 = [version]'4.5.1'
+        378758 = [version]'4.5.1'
+        379893 = [version]'4.5.2'
+        393295 = [version]'4.6'
+        393297 = [version]'4.6'
+        394254 = [version]'4.6.1'
+        394271 = [version]'4.6.1'
+        394802 = [version]'4.6.2'
+        394806 = [version]'4.6.2'
+        460798 = [version]'4.7'
+        460805 = [version]'4.7'
+        461308 = [version]'4.7.1'
+        461310 = [version]'4.7.1'
+        461808 = [version]'4.7.2'
+        461814 = [version]'4.7.2'
+    }
+
+    Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP' -Recurse |
+        Get-ItemProperty -name Version, Release -EA 0 |
+        Where-Object { $_.PSChildName -match '^(?!S)\p{L}'} |
+        Select-Object @{name = ".NET Framework"; expression = {$_.PSChildName}}, 
+    @{name = "Product"; expression = {$Lookup[$_.Release]}}, 
+    Version, Release
 }
 
 function Get-PowershellAs {
@@ -284,13 +287,17 @@ function Get-PowershellAs {
     Optional parameter to run elevated (UAC).
     #>
     param (
-        [Parameter(Mandatory=$True)]
-        [ValidateNotNullOrEmpty()]$UserObj,
+        [Parameter(Mandatory=$false)]
+        [string]$UserObj=$Defaults.PowershellAs[0].Username,
         [Parameter(Mandatory=$false)]
         [Switch]$SystemObj,
         [Parameter(Mandatory=$false)]
         [Switch]$ElevatedObj
     )
+    
+    if (-not($PSBoundParameters.ContainsKey('UserObj')) -and $UserObj) {
+        Write-Host "User relied on default value. We should really test the key exists in case there is no JSON"
+    }
 
     $DomainObj = (Get-WmiObject Win32_ComputerSystem).Domain
     if ( $DomainObj -eq 'WORKGROUP' ){
@@ -308,6 +315,50 @@ function Get-PowershellAs {
 
     Start-Process powershell.exe -Credential "$DomainObj\$UserObj" -NoNewWindow -ArgumentList $arglist
 }; Set-Alias pa Get-PowershellAs
+
+function Remove-ReadOnly {
+    <#
+    .SYNOPSIS
+    Recursively remove read only attributes.
+    .DESCRIPTION
+    Recursively remove read only attributes.
+    .EXAMPLE
+    Remove-ReadOnly -PathObj
+    .PARAMETER PathObj
+    Mandatory path
+    #>
+    param (
+        [Parameter(Mandatory = $True)]
+        [ValidateNotNullOrEmpty()]$PathObj
+    )
+    Get-ChildItem "$PathObj" -Recurse | ForEach-Object {$_.Attributes = 'Normal'}
+}
+
+Function Set-FileTime {
+    <#
+    .SYNOPSIS
+    Set a date stamp attribute.
+    .DESCRIPTION
+    Set a date stamp attribute.
+    .EXAMPLE
+    Set-FileTime -PathObj C:\temp\log.txt -date 7/1/11
+    .PARAMETER PathObj
+    Mandatory path
+    #>
+    Param (
+        [Parameter(mandatory = $true)]
+        [string[]]$PathObj,
+        [Parameter(mandatory = $true)]
+        [datetime]$date = (Get-Date)
+    )
+
+    Get-ChildItem -Path $PathObj |
+
+    ForEach-Object {
+        $_.CreationTime = $date
+        $_.LastWriteTime = $date
+    }
+}
 <# End Support Helpers #>
 
 <# HUD #>
@@ -338,68 +389,3 @@ function prompt {
     $LASTEXITCODE = $origLastExitCode
     "`n$('PS>' * ($nestedPromptLevel + 1)) "
 }
-
-<# Notes #>
-
-# Build a better function
-# https://technet.microsoft.com/en-us/library/hh360993.aspx?f=255&MSPPError=-2147217396
-
-# Research ways of using execution policy
-# Set-ExecutionPolicy RemoteSigned -scope CurrentUser
-
-# function Get-evtx {
-#     wevtutil epl application c:\temp\application.evtx
-# }
-
-# function Get_Health {
-#     DISM /Online /Cleanup-Image /CheckHealth
-#     DISM /Online /Cleanup-Image /ScanHealth
-#     DISM /Online /Cleanup-Image /RestoreHealth
-# }
-
-# function Get-Remote {
-#     Start-Process C:\Windows\CmRcViewer.exe
-# }
-
-# function Get-Uptime {
-#     (Get-Date)-(Get-CimInstance Win32_OperatingSystem).lastbootuptime | Format-Table
-# }
-
-# function Get-Documentation {
-#     <#
-#     .SYNOPSIS
-#     Quick access to edit documentation.
-#     .DESCRIPTION
-#     Lightweight documentation.
-#     .EXAMPLE
-#     Get-Documentation -DocObj printers
-#     .PARAMETER DocObj
-#     The document name. Just one.
-#     #>
-#     param (
-#         [parameter(Mandatory=$true)]
-#         [ValidateNotNullOrEmpty()]$DocObj
-#     )
-#     try {
-#         Import-Csv "$PSDirectory\$DocObj.txt" | Format-Table | Out-String -stream
-#         Write-Host "`nFilter with (sls) : | Select-String 'STRING'`n"
-#     } catch {
-#         Write-Host "No such document."
-#         return $false
-#     }
-
-# }; Set-Alias gd Get-Documentation
-
-# SSH
-# Test pipe
-#Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH.Client*' | Add-WindowsCapability -Online
-# Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH*'
-
-# Install the OpenSSH Client
-#Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
-
-# Install the OpenSSH Server
-# Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
-
-# Find the powershell way
-# msinfo32 /nfo C:\TEMP\SYSSUM.NFO /categories +systemsummary
