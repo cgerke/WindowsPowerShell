@@ -26,7 +26,7 @@ function Set-EnvPath([string] $path ) {
 
 #region helpers
 function Get-Profile {
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/cgerke/dotfiles/master/Microsoft.PowerShell_profile.ps1" -OutFile "$profile"
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/cgerke/WindowsPowerShell/master/Microsoft.PowerShell_profile.ps1" -OutFile "$profile"
 }
 
 function Restart-Powershell {
