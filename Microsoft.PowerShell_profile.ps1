@@ -315,6 +315,50 @@ function Get-PowershellAs {
 
     Start-Process powershell.exe -Credential "$DomainObj\$UserObj" -NoNewWindow -ArgumentList $arglist
 }; Set-Alias pa Get-PowershellAs
+
+function Remove-ReadOnly {
+    <#
+    .SYNOPSIS
+    Recursively remove read only attributes.
+    .DESCRIPTION
+    Recursively remove read only attributes.
+    .EXAMPLE
+    Remove-ReadOnly -PathObj
+    .PARAMETER PathObj
+    Mandatory path
+    #>
+    param (
+        [Parameter(Mandatory = $True)]
+        [ValidateNotNullOrEmpty()]$PathObj
+    )
+    Get-ChildItem "$PathObj" -Recurse | ForEach-Object {$_.Attributes = 'Normal'}
+}
+
+Function Set-FileTime {
+    <#
+    .SYNOPSIS
+    Set a date stamp attribute.
+    .DESCRIPTION
+    Set a date stamp attribute.
+    .EXAMPLE
+    Set-FileTime -PathObj C:\temp\log.txt -date 7/1/11
+    .PARAMETER PathObj
+    Mandatory path
+    #>
+    Param (
+        [Parameter(mandatory = $true)]
+        [string[]]$PathObj,
+        [Parameter(mandatory = $true)]
+        [datetime]$date = (Get-Date)
+    )
+
+    Get-ChildItem -Path $PathObj |
+
+    ForEach-Object {
+        $_.CreationTime = $date
+        $_.LastWriteTime = $date
+    }
+}
 <# End Support Helpers #>
 
 <# HUD #>
