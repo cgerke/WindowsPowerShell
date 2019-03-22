@@ -5,7 +5,6 @@ $DebugPreference = "SilentlyContinue" # https://docs.microsoft.com/en-us/powersh
 
 <# Globals #>
 $PSDirectory = (Get-Item $profile).DirectoryName
-# $PSDirectory = Join-Path $env:USERPROFILE "\Documents\WindowsPowerShell" # Account for folder redirection
 
 <# Alias / 1-Liner #>
 ${function:~} = { Set-Location ~ }
