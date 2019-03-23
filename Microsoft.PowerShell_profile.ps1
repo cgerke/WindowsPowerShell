@@ -74,18 +74,15 @@ if ( Test-Path -path $json ) {
 #end region defaults
 
 #region essentials
+function Get-Choco {
+       iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+}
 function Get-Sandbox {
-    Start-Process -FilePath powershell.exe -ArgumentList {
-        -noprofile
-        Enable-WindowsOptionalFeature -FeatureName "Containers-DisposableClientVM" -All -Online
-    } -verb RunAs
+    Enable-WindowsOptionalFeature -FeatureName "Containers-DisposableClientVM" -All -Online
 }
 
 function Get-Ssh {
-    Start-Process -FilePath powershell.exe -ArgumentList {
-        -noprofile
-        Get-WindowsCapability -Online | Where-Object Name -like "OpenSSH.Client*" | Add-WindowsCapability -Online
-    } -verb RunAs
+    Get-WindowsCapability -Online | Where-Object Name -like "OpenSSH.Client*" | Add-WindowsCapability -Online
 }
 
 function Get-Telnet {
@@ -387,4 +384,11 @@ function prompt {
     Write-VcsStatus
     $LASTEXITCODE = $origLastExitCode
     "`n$('PS>' * ($nestedPromptLevel + 1)) "
+}
+
+
+# Chocolatey profile
+$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+if (Test-Path($ChocolateyProfile)) {
+  Import-Module "$ChocolateyProfile"
 }
