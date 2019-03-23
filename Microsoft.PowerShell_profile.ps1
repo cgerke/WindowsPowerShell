@@ -111,7 +111,7 @@ function Get-PowershellAs {
     #>
     param (
         [Parameter(Mandatory=$false)]
-        [string]$UserObj=$Defaults.PowershellAs[0].Username,
+        [string]$UserObj=$PowerShellAs,
         [Parameter(Mandatory=$false)]
         [Switch]$SystemObj,
         [Parameter(Mandatory=$false)]
