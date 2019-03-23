@@ -9,7 +9,7 @@ $PSDirectory = (Get-Item $profile).DirectoryName
 <# Alias / 1-Liner #>
 ${function:~} = { Set-Location ~ }
 ${function:Get-Fun} = { Get-ChildItem function:\ | select-String "-" | ForEach-Object { Get-Help $_ } | Format-Table -Property Name, Synopsis }
-${function:Get-Sudo} = { Start-Process powershell -ArgumentList "-executionpolicy bypass" -Verb RunAs }
+${function:Get-Sudo} = { Start-Process powershell -ArgumentList "-nologo -executionpolicy bypass" -Verb RunAs }
 ${function:Reload-Powershell} = { & $profile }
 ${function:Set-ParentLocation} = { Set-Location .. }; Set-Alias ".." Set-ParentLocation
 
@@ -24,10 +24,6 @@ function Set-EnvPath([string] $path ) {
  }
 
 #region helpers
-function Get-Profile {
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/cgerke/WindowsPowerShell/master/Microsoft.PowerShell_profile.ps1" -OutFile "$profile"
-}
-
 function Restart-Powershell {
     $newProcess = new-object System.Diagnostics.ProcessStartInfo "PowerShell";
     [System.Diagnostics.Process]::Start($newProcess);
@@ -68,12 +64,16 @@ Pop-Location
 $json = Join-Path -Path $PSDirectory -ChildPath "Microsoft.PowerShell_options.json"
 if ( Test-Path -path $json ) {
     $Defaults = Get-Content $json | ConvertFrom-Json
-    $JsonObject.Defaults[0]
-    $Defaults.AdminAccount[0].Username
+    #$JsonObject.Defaults[0]
+    #$Defaults.AdminAccount[0].Username
 }
 #end region defaults
 
 #region essentials
+function Get-Profile {
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/cgerke/WindowsPowerShell/master/Microsoft.PowerShell_profile.ps1" -OutFile "$profile"
+}
+
 function Get-Choco {
     iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 }
