@@ -1,1 +1,1 @@
-$PowerShellAs = "cgerke"
+$PshAs = "chris.gerke@gmail.com"

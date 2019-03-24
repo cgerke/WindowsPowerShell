@@ -16,9 +16,36 @@ Pop-Location
 #region functions
 ${function:~} = { Set-Location ~ }
 ${function:Get-Fun} = { Get-ChildItem function:\ | select-String "-" | ForEach-Object { Get-Help $_ } | Format-Table -Property Name, Synopsis }
-${function:Get-Sudo} = { Start-Process powershell -ArgumentList "-nologo -executionpolicy bypass" -Verb RunAs }
 ${function:Reload-Powershell} = { & $profile }
 ${function:Set-ParentLocation} = { Set-Location .. }; Set-Alias ".." Set-ParentLocation
+
+# testing, may split into multiple specialised functions
+# ie, get-sudo then get-psexeclocal
+function Get-PshAs {
+    <#
+    .SYNOPSIS
+    Run powershell elevated.
+    .DESCRIPTION
+    Run a powershell process as a specified user, elevated.
+    .EXAMPLE
+    Get-PshAs -User bill
+    .EXAMPLE
+    Get-PowershellAs -User bill -Elevated
+    .EXAMPLE
+    Get-PowershellAs -User bill -System
+    .PARAMETER User
+    Mandatory user name to "Run as"
+    .PARAMETER System
+    Optional parameter to run as System NT. Requires PSEXEC
+    .PARAMETER Elevated
+    Optional parameter to run elevated (UAC).
+    #>
+    param (
+        [Parameter(Mandatory=$false)]
+        [string]$User=$PshAs
+    )
+    Start-Process powershell -ArgumentList "-nologo -executionpolicy bypass" -Verb RunAs
+}; Set-Alias "Get-Sudo" Get-PshAs
 
 function Restart-Powershell {
     $newProcess = new-object System.Diagnostics.ProcessStartInfo "PowerShell";
@@ -97,47 +124,49 @@ function Get-PowershellAs {
     .DESCRIPTION
     Run a powershell process as a specified user, a specific user elevated, or SYSTEM NT.
     .EXAMPLE
-    Get-PowershellAs -UserObj myuser
+    Get-PowershellAs -User myuser
     .EXAMPLE
-    Get-PowershellAs -UserObj myuser -ElevatedObj
+    Get-PowershellAs -User myuser -Elevated
     .EXAMPLE
-    Get-PowershellAs -UserObj myuser -SystemObj
-    .PARAMETER UserObj
+    Get-PowershellAs -User myuser -System
+    .PARAMETER User
     Mandatory user name to "Run as"
-    .PARAMETER SystemObj
+    .PARAMETER System
     Optional parameter to run as System NT. Requires PSEXEC
-    .PARAMETER ElevatedObj
+    .PARAMETER Elevated
     Optional parameter to run elevated (UAC).
     #>
     param (
         [Parameter(Mandatory=$false)]
-        [string]$UserObj=$PowerShellAs,
+        [string]$User=$PshAs,
         [Parameter(Mandatory=$false)]
-        [Switch]$SystemObj,
+        [Switch]$System,
         [Parameter(Mandatory=$false)]
-        [Switch]$ElevatedObj
+        [Switch]$Elevated
     )
     
-    if (-not($PSBoundParameters.ContainsKey('UserObj')) -and $UserObj) {
-        Write-Host "User relied on default value. We should really test the key exists in case there is no JSON"
+    if (-not($PSBoundParameters.ContainsKey('User')) -and $User) {
+        Write-Host "Using default."
     }
 
-    $DomainObj = (Get-WmiObject Win32_ComputerSystem).Domain
-    if ( $DomainObj -eq 'WORKGROUP' ){
-        $DomainObj = (Get-WmiObject Win32_ComputerSystem).Name
+    # User context Domain/Workgroup, but this assume Workgroup is WORKGROUP so make this smarter
+    $DomainObj = switch ((Get-WmiObject Win32_ComputerSystem).Domain) {
+        "WORKGROUP" { (Get-WmiObject Win32_ComputerSystem).Name } default { (Get-WmiObject Win32_ComputerSystem).Domain }
     }
 
-    if($SystemObj){
-        $arglist = "Start-Process psexec -ArgumentList '-i -s powershell.exe -executionpolicy RemoteSigned' -Verb runAs"
+    $arglist = "-executionpolicy RemoteSigned "
+    if($System){
+        Set-EnvPath($PSDirectory + "\bin")
+        $arglist = $arglist + "Start-Process psexec.exe -ArgumentList '-i -s powershell.exe -executionpolicy RemoteSigned' -WindowStyle Hidden -Verb runAs"
     } else {
-        $arglist = "Start-Process powershell.exe"
-        if($ElevatedObj){
+        $arglist = $arglist + "Start-Process powershell.exe -ArgumentList '-nologo -executionpolicy bypass'"
+        if($Elevated){
             $arglist = $arglist + " -Verb runAs"
         }
     }
 
-    Start-Process powershell.exe -Credential "$DomainObj\$UserObj" -NoNewWindow -ArgumentList $arglist
-}; Set-Alias pa Get-PowershellAs
+    Start-Process powershell.exe -Credential "$User" -ArgumentList $arglist
+};
 #endregion powershell
 
 #region AD
@@ -362,7 +391,14 @@ Write-Host "$profile"
 Write-Host (Get-ExecutionPolicy)
 
 function prompt {
+    
+    # posh-git
     # https://github.com/dahlbyk/posh-git/wiki/Customizing-Your-PowerShell-Prompt
+    if (-not (Get-Module -ListAvailable -Name posh-git)) {
+        Write-Host "Install posh-git."
+        Install-Module posh-git -Scope CurrentUser
+    }
+
     $origLastExitCode = $LastExitCode
 
     if (Get-GitStatus){
