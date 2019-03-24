@@ -19,34 +19,6 @@ ${function:Get-Fun} = { Get-ChildItem function:\ | select-String "-" | ForEach-O
 ${function:Reload-Powershell} = { & $profile }
 ${function:Set-ParentLocation} = { Set-Location .. }; Set-Alias ".." Set-ParentLocation
 
-# testing, may split into multiple specialised functions
-# ie, get-sudo then get-psexeclocal
-function Get-PshAs {
-    <#
-    .SYNOPSIS
-    Run powershell elevated.
-    .DESCRIPTION
-    Run a powershell process as a specified user, elevated.
-    .EXAMPLE
-    Get-PshAs -User bill
-    .EXAMPLE
-    Get-PowershellAs -User bill -Elevated
-    .EXAMPLE
-    Get-PowershellAs -User bill -System
-    .PARAMETER User
-    Mandatory user name to "Run as"
-    .PARAMETER System
-    Optional parameter to run as System NT. Requires PSEXEC
-    .PARAMETER Elevated
-    Optional parameter to run elevated (UAC).
-    #>
-    param (
-        [Parameter(Mandatory=$false)]
-        [string]$User=$PshAs
-    )
-    Start-Process powershell -ArgumentList "-nologo -executionpolicy bypass" -Verb RunAs
-}; Set-Alias "Get-Sudo" Get-PshAs
-
 function Restart-Powershell {
     $newProcess = new-object System.Diagnostics.ProcessStartInfo "PowerShell";
     [System.Diagnostics.Process]::Start($newProcess);
@@ -149,11 +121,6 @@ function Get-PowershellAs {
         Write-Host "Using default."
     }
 
-    # User context Domain/Workgroup, but this assume Workgroup is WORKGROUP so make this smarter
-    $DomainObj = switch ((Get-WmiObject Win32_ComputerSystem).Domain) {
-        "WORKGROUP" { (Get-WmiObject Win32_ComputerSystem).Name } default { (Get-WmiObject Win32_ComputerSystem).Domain }
-    }
-
     $arglist = "-executionpolicy RemoteSigned "
     if($System){
         Set-EnvPath($PSDirectory + "\bin")
@@ -166,7 +133,7 @@ function Get-PowershellAs {
     }
 
     Start-Process powershell.exe -Credential "$User" -ArgumentList $arglist
-};
+}; Set-Alias "Get-Sudo" Get-PowershellAs
 #endregion powershell
 
 #region AD
