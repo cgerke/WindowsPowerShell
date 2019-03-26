@@ -63,7 +63,7 @@ if (Test-Path($ChocolateyProfile)) {
 }
 
 function Get-Choco {
-    iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 }
 #endregion choco
 
@@ -96,11 +96,11 @@ function Get-PowershellAs {
     .DESCRIPTION
     Run a powershell process as a specified user, a specific user elevated, or SYSTEM NT.
     .EXAMPLE
-    Get-PowershellAs -User myuser
+    Get-PowershellAs -User username
     .EXAMPLE
-    Get-PowershellAs -User myuser -Elevated
+    Get-PowershellAs -User username -Elevated
     .EXAMPLE
-    Get-PowershellAs -User myuser -System
+    Get-PowershellAs -User username -System
     .PARAMETER User
     Mandatory user name to "Run as"
     .PARAMETER System
@@ -110,13 +110,19 @@ function Get-PowershellAs {
     #>
     param (
         [Parameter(Mandatory=$false)]
-        [string]$User=$PshAs,
+        [string]$User=$Default.Username,
         [Parameter(Mandatory=$false)]
         [Switch]$System,
         [Parameter(Mandatory=$false)]
         [Switch]$Elevated
     )
+
+    # User domain context
+    $Domain = switch ((Get-WmiObject -Class Win32_ComputerSystem).PartOfDomain) {
+        true { (Get-WmiObject Win32_ComputerSystem).Domain } default { (Get-WmiObject Win32_ComputerSystem).Name }
+    }
     
+    # Eventually remove this, debugging only.
     if (-not($PSBoundParameters.ContainsKey('User')) -and $User) {
         Write-Host "Using default."
     }
@@ -132,7 +138,7 @@ function Get-PowershellAs {
         }
     }
 
-    Start-Process powershell.exe -Credential "$User" -ArgumentList $arglist
+    Start-Process powershell.exe -Credential "$Domain\$User" -ArgumentList $arglist
 }; Set-Alias "Get-Sudo" Get-PowershellAs
 #endregion powershell
 
@@ -334,7 +340,7 @@ Function Set-FileTime {
         [Parameter(mandatory = $true)]
         [string[]]$PathObj,
         [Parameter(mandatory = $true)]
-        [datetime]$date = (Get-Date)
+        [datetime]$date
     )
 
     Get-ChildItem -Path $PathObj |
