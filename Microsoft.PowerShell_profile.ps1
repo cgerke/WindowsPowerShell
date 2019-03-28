@@ -63,7 +63,11 @@ if (Test-Path($ChocolateyProfile)) {
 }
 
 function Get-Choco {
-    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+    if (Test-IsAdmin) {  # if elevated
+        Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+    } else {
+        Write-Host "Elevation required."
+    }
 }
 #endregion choco
 
