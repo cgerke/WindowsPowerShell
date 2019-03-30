@@ -2,6 +2,7 @@
 .DS_Store
 !.gitignore
 !.travis.yml
+!Microsoft.PowerShell_profile.ps1
 !Microsoft.VSCode_profile.ps1
 !README.md
 /bin
