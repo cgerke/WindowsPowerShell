@@ -125,24 +125,25 @@ function Get-PowershellAs {
     $Domain = switch ((Get-WmiObject -Class Win32_ComputerSystem).PartOfDomain) {
         true { (Get-WmiObject Win32_ComputerSystem).Domain } default { (Get-WmiObject Win32_ComputerSystem).Name }
     }
-    
+
     # Eventually remove this, debugging only.
     if (-not($PSBoundParameters.ContainsKey('User')) -and $User) {
         Write-Host "Using default."
     }
 
-    $arglist = "-executionpolicy RemoteSigned "
     if($System){
-        Set-EnvPath($PSDirectory + "\bin")
-        $arglist = $arglist + "Start-Process psexec.exe -ArgumentList '-i -s powershell.exe -executionpolicy RemoteSigned' -WindowStyle Hidden -Verb runAs"
+        $cwd = Get-Location
+        Start-Process psexec -ArgumentList "-w ""$cwd"" -i -s powershell -ExecutionPolicy Bypass" -WindowStyle Hidden -Verb runAs
     } else {
-        $arglist = $arglist + "Start-Process powershell.exe -ArgumentList '-nologo -executionpolicy bypass'"
+        $arglist = "Start-Process powershell -ArgumentList '-NoLogo -ExecutionPolicy Unrestricted'"
         if($Elevated){
             $arglist = $arglist + " -Verb runAs"
         }
+        if($User){
+            Start-Process powershell -Credential "$Domain\$User" -ArgumentList $arglist
+        }
     }
 
-    Start-Process powershell.exe -Credential "$Domain\$User" -ArgumentList $arglist
 }; Set-Alias "Get-Sudo" Get-PowershellAs
 #endregion powershell
 
@@ -240,8 +241,8 @@ function Get-DotNet {
     Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP' -Recurse |
         Get-ItemProperty -name Version, Release -EA 0 |
         Where-Object { $_.PSChildName -match '^(?!S)\p{L}'} |
-        Select-Object @{name = ".NET Framework"; expression = {$_.PSChildName}}, 
-    @{name = "Product"; expression = {$Lookup[$_.Release]}}, 
+        Select-Object @{name = ".NET Framework"; expression = {$_.PSChildName}},
+    @{name = "Product"; expression = {$Lookup[$_.Release]}},
     Version, Release
 }
 
@@ -265,7 +266,7 @@ function Get-MSIProdCode {
         [ValidateNotNullOrEmpty()]
         [string]$DisplayName
     )
-    
+
     # old way
     # get-wmiobject Win32_Product | Format-Table IdentifyingNumber, Name | Out-String -stream
     $UninstallKeys = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall", "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
@@ -282,7 +283,7 @@ function Get-MSIProdCode {
             ErrorAction = 'SilentlyContinue'
         }
         $selectProperties = @(
-            @{n = 'GUID'; e = {$_.PSChildName}}, 
+            @{n = 'GUID'; e = {$_.PSChildName}},
             @{n = 'Name'; e = {$_.GetValue('DisplayName')}}
         )
         Get-ChildItem @gciParams | Where-Object $WhereBlock | Select-Object -Property $selectProperties
@@ -368,7 +369,7 @@ Write-Host "$profile"
 Write-Host (Get-ExecutionPolicy)
 
 function prompt {
-    
+
     # posh-git
     # https://github.com/dahlbyk/posh-git/wiki/Customizing-Your-PowerShell-Prompt
     if (-not (Get-Module -ListAvailable -Name posh-git)) {
