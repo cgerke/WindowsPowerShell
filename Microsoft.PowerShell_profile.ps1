@@ -8,7 +8,7 @@ $PSDirectory = (Get-Item $profile).DirectoryName
 #region . source
 Push-Location ($PSDirectory)
 "preferences","organisation" | Where-Object {Test-Path "Microsoft.PowerShell_$_.ps1"} | ForEach-Object -process {
-    Invoke-Expression ". .\Microsoft.PowerShell_$_.ps1"; Write-Host ".\ Microsoft.PowerShell_$_.ps1"
+    Invoke-Expression ". .\Microsoft.PowerShell_$_.ps1"; #Write-Host ".\ Microsoft.PowerShell_$_.ps1"
 }
 Pop-Location
 #endregion . source
@@ -28,7 +28,7 @@ function Restart-Powershell {
 function Set-EnvPath([string] $path ) {
     if ( -not [string]::IsNullOrEmpty($path) ) {
         if ( (Test-Path $path) -and (-not $env:PATH.contains($path)) ) {
-            Write-Host "PATH" $path -ForegroundColor Cyan
+            #Write-Host "PATH" $path -ForegroundColor Cyan
             $env:PATH += ';' + "$path"
        }
     }
@@ -358,15 +358,7 @@ Function Set-FileTime {
 #endregion file helpers
 
 #region prompt
-# Git
-<# Push-Location (Split-Path -parent $profile)
-Get-ChildItem .\bin\ | Where-Object {Test-Path .git*} | ForEach-Object -process {
-    If (-Not (Test-Path $_)) { Copy-Item .\bin\$_ $env:USERPROFILE }
-}
-Pop-Location #>
-
-Write-Host "$profile"
-Write-Host (Get-ExecutionPolicy)
+#Write-Host "$profile"
 
 function prompt {
 
@@ -386,13 +378,14 @@ function prompt {
         }
     }
 
+    Write-Host $(Get-ExecutionPolicy) -NoNewline -ForegroundColor Yellow
     if (Test-IsAdmin) {  # if elevated
-        Write-Host "(Elevated $env:USERNAME ) " -NoNewline -ForegroundColor Red
+        Write-Host " (Elevated $env:USERNAME ) " -NoNewline -ForegroundColor Red
     } else {
-        Write-Host "$env:USERNAME " -NoNewline -ForegroundColor Blue
+        Write-Host " $env:USERNAME " -NoNewline -ForegroundColor White
     }
 
-    Write-Host "$env:COMPUTERNAME " -NoNewline -ForegroundColor DarkCyan
+    Write-Host "$env:COMPUTERNAME " -NoNewline -ForegroundColor White
     Write-Host $ExecutionContext.SessionState.Path.CurrentLocation -ForegroundColor Cyan -NoNewline
     Write-VcsStatus
     $LASTEXITCODE = $origLastExitCode
