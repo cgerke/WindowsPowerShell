@@ -4,6 +4,7 @@
 !.travis.yml
 !Microsoft.PowerShell_profile.ps1
 !Microsoft.VSCode_profile.ps1
+!WindowsPowerShell.code-workspace
 !README.md
 /bin
 /Modules
