@@ -359,11 +359,11 @@ Function Set-FileTime {
 
 #region prompt
 # Git
-Push-Location (Split-Path -parent $profile)
+<# Push-Location (Split-Path -parent $profile)
 Get-ChildItem .\bin\ | Where-Object {Test-Path .git*} | ForEach-Object -process {
     If (-Not (Test-Path $_)) { Copy-Item .\bin\$_ $env:USERPROFILE }
 }
-Pop-Location
+Pop-Location #>
 
 Write-Host "$profile"
 Write-Host (Get-ExecutionPolicy)
