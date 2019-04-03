@@ -374,11 +374,15 @@ function prompt {
     if (Get-GitStatus){
         if (Get-Command git -TotalCount 1 -ErrorAction SilentlyContinue) {
             Set-EnvPath((Get-Item "Env:ProgramFiles").Value + "\Git\bin")
-            Write-Host (git --version) -ForegroundColor Cyan
+            Write-Host (git --version) -ForegroundColor Yellow
         }
     }
 
-    Write-Host $(Get-ExecutionPolicy) -NoNewline -ForegroundColor Yellow
+    # Powershell
+    $PSVersionTable.PSVersion | % { $_.Major, ".", $_.Minor, ".", $_.Build, ".", $_.Revision, " " } | Write-Host -NoNewLine -ForegroundColor Cyan
+    Write-Host $(Get-ExecutionPolicy) -NoNewline -ForegroundColor Cyan
+
+    # User
     if (Test-IsAdmin) {  # if elevated
         Write-Host " (Elevated $env:USERNAME ) " -NoNewline -ForegroundColor Red
     } else {
@@ -386,7 +390,7 @@ function prompt {
     }
 
     Write-Host "$env:COMPUTERNAME " -NoNewline -ForegroundColor White
-    Write-Host $ExecutionContext.SessionState.Path.CurrentLocation -ForegroundColor Cyan -NoNewline
+    Write-Host $ExecutionContext.SessionState.Path.CurrentLocation -ForegroundColor Gray -NoNewline
     Write-VcsStatus
     $LASTEXITCODE = $origLastExitCode
     "`n$('PS>' * ($nestedPromptLevel + 1)) "
