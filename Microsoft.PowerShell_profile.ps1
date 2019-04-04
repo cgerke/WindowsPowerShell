@@ -358,8 +358,6 @@ Function Set-FileTime {
 #endregion file helpers
 
 #region prompt
-#Write-Host "$profile"
-
 function prompt {
 
     # posh-git
@@ -379,7 +377,7 @@ function prompt {
     }
 
     # Powershell
-    $PSVersionTable.PSVersion | % { $_.Major, ".", $_.Minor, ".", $_.Build, ".", $_.Revision, " " } | Write-Host -NoNewLine -ForegroundColor Cyan
+    $PSVersionTable.PSVersion | ForEach-Object { $_.Major, ".", $_.Minor, ".", $_.Build, ".", $_.Revision, " " } | Write-Host -NoNewLine -ForegroundColor Cyan
     Write-Host $(Get-ExecutionPolicy) -NoNewline -ForegroundColor Cyan
 
     # User
