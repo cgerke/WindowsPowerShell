@@ -397,7 +397,13 @@ function prompt {
 }
 #endregion prompt
 
-
+# padt workrounds
+#if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
+#    if ([int](Get-CimInstance -Class Win32_OperatingSystem | Select-Object -ExpandProperty BuildNumber) -ge 6000) {
+#          Start-Process -FilePath PowerShell.exe -Verb Runas -ArgumentList "Remove-ItemProperty -Path 'HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\outlook.exe' -Name 'Debugger'"
+#    }
+#   }
+#Read-Host -Prompt "Press Enter to exit"
 
 #region testing
 # consuming json
