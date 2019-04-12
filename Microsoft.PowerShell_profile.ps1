@@ -358,8 +358,6 @@ Function Set-FileTime {
 #endregion file helpers
 
 #region prompt
-#Write-Host "$profile"
-
 function prompt {
 
     # posh-git
@@ -379,7 +377,7 @@ function prompt {
     }
 
     # Powershell
-    $PSVersionTable.PSVersion | % { $_.Major, ".", $_.Minor, ".", $_.Build, ".", $_.Revision, " " } | Write-Host -NoNewLine -ForegroundColor Cyan
+    $PSVersionTable.PSVersion | ForEach-Object { $_.Major, ".", $_.Minor, ".", $_.Build, ".", $_.Revision, " " } | Write-Host -NoNewLine -ForegroundColor Cyan
     Write-Host $(Get-ExecutionPolicy) -NoNewline -ForegroundColor Cyan
 
     # User
@@ -396,24 +394,3 @@ function prompt {
     "`n$('PS>' * ($nestedPromptLevel + 1)) "
 }
 #endregion prompt
-
-# padt workrounds
-#if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
-#    if ([int](Get-CimInstance -Class Win32_OperatingSystem | Select-Object -ExpandProperty BuildNumber) -ge 6000) {
-#          Start-Process -FilePath PowerShell.exe -Verb Runas -ArgumentList "Remove-ItemProperty -Path 'HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\outlook.exe' -Name 'Debugger'"
-#    }
-#   }
-#Read-Host -Prompt "Press Enter to exit"
-
-#region testing
-# consuming json
-<# $json = Join-Path -Path $PSDirectory -ChildPath "Microsoft.PowerShell_options.json"
-if ( Test-Path -path $json ) {
-    $Defaults = Get-Content $json | ConvertFrom-Json
-    #$JsonObject.Defaults[0]
-    #$Defaults.AdminAccount[0].Username
-} #>
-
-#self executing function
-#& { param($msg) Write-Host $msg } "Hello World"
-#endregion testing
