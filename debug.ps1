@@ -1,6 +1,5 @@
 
-$File = "C:\Users\$env:UserName\AppData\Roaming\Jabra Direct\Devices.txt"
-
+<# $File = "C:\Users\$env:UserName\AppData\Roaming\Jabra Direct\Devices.txt"
 If ( Test-Path -Path $File ){
     $Hash = @{}
 
@@ -15,10 +14,10 @@ If ( Test-Path -Path $File ){
     }
 
     $Hash
-}
-#region testing
-# consuming json
-<# $json = Join-Path -Path $PSDirectory -ChildPath "Microsoft.PowerShell_options.json"
+} #>
+
+<# #consuming json
+$json = Join-Path -Path $PSDirectory -ChildPath "Microsoft.PowerShell_options.json"
 if ( Test-Path -path $json ) {
     $Defaults = Get-Content $json | ConvertFrom-Json
     #$JsonObject.Defaults[0]
@@ -27,4 +26,3 @@ if ( Test-Path -path $json ) {
 
 #self executing function
 #& { param($msg) Write-Host $msg } "Hello World"
-#endregion testing
