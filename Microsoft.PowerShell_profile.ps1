@@ -5,14 +5,6 @@ $DebugPreference = "SilentlyContinue" # https://docs.microsoft.com/en-us/powersh
 $PSDirectory = (Get-Item $profile).DirectoryName
 #endregion globals
 
-#region . source
-Push-Location ($PSDirectory)
-"preferences","organisation" | Where-Object {Test-Path "Microsoft.PowerShell_$_.ps1"} | ForEach-Object -process {
-    Invoke-Expression ". .\Microsoft.PowerShell_$_.ps1"; #Write-Host ".\ Microsoft.PowerShell_$_.ps1"
-}
-Pop-Location
-#endregion . source
-
 #region functions
 ${function:~} = { Set-Location ~ }
 ${function:Get-Fun} = { Get-ChildItem function:\ | select-String "-" | ForEach-Object { Get-Help $_ } | Format-Table -Property Name, Synopsis }
@@ -55,6 +47,15 @@ function Test-RegistryValue {
     }
 }
 #endregion functions
+
+
+#region . source
+Push-Location ($PSDirectory)
+"preferences","organisation" | Where-Object {Test-Path "Microsoft.PowerShell_$_.ps1"} | ForEach-Object -process {
+    Invoke-Expression ". .\Microsoft.PowerShell_$_.ps1"; #Write-Host ".\ Microsoft.PowerShell_$_.ps1"
+}
+Pop-Location
+#endregion . source
 
 #region choco
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
