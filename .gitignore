@@ -3,7 +3,6 @@
 !.gitignore
 !.travis.yml
 !debug.ps1
-Microsoft.PowerShell_preferences.ps1
 !Microsoft.PowerShell_profile.ps1
 !Microsoft.VSCode_profile.ps1
 !WindowsPowerShell.code-workspace
