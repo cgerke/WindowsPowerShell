@@ -26,3 +26,5 @@ if ( Test-Path -path $json ) {
 
 #self executing function
 #& { param($msg) Write-Host $msg } "Hello World"
+
+Write-Host helloworld
