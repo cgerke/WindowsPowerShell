@@ -134,7 +134,7 @@ function Get-PowershellAs {
 
     if($System){
         $cwd = Get-Location
-        Start-Process psexec -ArgumentList "-w ""$cwd"" -i -s powershell -ExecutionPolicy Bypass" -WindowStyle Hidden -Verb runAs
+        Start-Process psexec -ArgumentList "-accepteula -nobanner -w ""$cwd"" -i -s powershell -ExecutionPolicy Bypass" -WindowStyle Hidden -Verb runAs
     } else {
         $arglist = "Start-Process powershell -ArgumentList '-NoLogo -ExecutionPolicy Unrestricted'"
         if($Elevated){
