@@ -1,11 +1,6 @@
 {
     "recommendations": [
-        "Shan.code-settings-sync",
         "vscodevim.vim",
-        "ms-vscode.powershell-preview",
         "visualstudioexptteam.vscodeintellicode",
-        "ms-vscode.node-debug2",
-        "ms-python.python",
-        "msjsdiag.debugger-for-chrome"
     ]
 }
