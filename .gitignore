@@ -2,8 +2,8 @@
 .DS_Store
 !.vscode
 !.gitignore
-!.travis.yml
 !debug.ps1
+!install.ps1
 !Microsoft.PowerShell_profile.ps1
 !Microsoft.VSCode_profile.ps1
 !WindowsPowerShell.code-workspace
