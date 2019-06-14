@@ -27,10 +27,10 @@ Set-Location "$PSRoot\WindowsPowerShell" -ErrorAction Stop
   }
 }
 
+
+
 # Git
-If (Get-GitStatus) {
-    "Git"
-} Else {
+If (-not $env:PATH.contains("Git")) {
   (Invoke-RestMethod https://api.github.com/repos/git-for-windows/git/releases/latest).assets |
     ForEach-Object -process {
     if ($_.name -match 'Git-\d*\.\d*\.\d*-64-bit\.exe') {
