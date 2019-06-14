@@ -14,20 +14,16 @@ Set-Location "$PSRoot\WindowsPowerShell" -ErrorAction Stop
 # Repositories
 "PSGallery" | ForEach-Object -process {
   if (-not (Get-PSRepository -Name "$_")) {
-    "Register repository $_"
-    Set-PSRepository -Name "$_" -InstallationPolicy Trusted
+    Set-PSRepository -Name "$_" -InstallationPolicy Trusted -Verbose
   }
 }
 
 # Modules
 "PowerShellGet","posh-git" | ForEach-Object -process {
   if (-not (Get-Module -ListAvailable -Name "$_")) {
-    "Install Module $_"
-    Install-Module "$_" -Scope CurrentUser -Force -Confirm:$false
+    Install-Module "$_" -Scope CurrentUser -Force -Confirm:$false -Verbose
   }
 }
-
-
 
 # Git
 If (-not $env:PATH.contains("Git")) {
@@ -36,17 +32,19 @@ If (-not $env:PATH.contains("Git")) {
     if ($_.name -match 'Git-\d*\.\d*\.\d*-64-bit\.exe') {
       $url = $_.browser_download_url
       $tmp = New-TemporaryFile
-      Write-Host $url
-      Write-Host $tmp
-      Invoke-WebRequest -Uri $url -OutFile "$tmp.exe"
-      Start-Process -Wait "$tmp.exe" -ArgumentList /silent
+      Invoke-WebRequest -Uri $url -OutFile "$tmp.exe" -Verbose
+      Start-Process -Wait "$tmp.exe" -ArgumentList /silent -Verbose
     }
   }
 }
 
 # Fetch REPO
 # Avoid Remove-Item issues.
-New-TemporaryFile | ForEach-Object { Remove-Item $_; Move-Item -Path .\.git -Destination "$_\" }
+New-TemporaryFile | ForEach-Object {
+  Remove-Item "$_" -Force -Verbose
+  New-Item -Path "$_" -ItemType Directory -Force -Verbose
+  Move-Item -Path .\.git -Destination "$_\" -Force -Verbose
+}
 
 <# TODO Need to investigate this further, why does this environment var
 cause git init to fail? Should I just (temporarily remove HOMEPATH)
