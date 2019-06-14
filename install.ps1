@@ -1,3 +1,7 @@
+# Verbose
+[CmdletBinding()]
+Param()
+
 <#
 .Synopsis
   Setup WindowsPowerShell $profile on Windows
@@ -7,24 +11,24 @@
 
 # Setup $profile
 $PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
-Set-Location "$PSRoot\" -ErrorAction Stop
-New-Item -Path "$PSRoot\WindowsPowerShell" -ItemType Directory -Force
+Set-Location "$PSRoot\" -ErrorAction Stop -Verbose
+New-Item -Path "$PSRoot\WindowsPowerShell" -ItemType Directory -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true)
 Set-Location "$PSRoot\WindowsPowerShell" -ErrorAction Stop
 
 # Repositories
 "PSGallery" | ForEach-Object -process {
   if (-not (Get-PSRepository -Name "$_")) {
-    Set-PSRepository -Name "$_" -InstallationPolicy Trusted -Verbose
+    Set-PSRepository -Name "$_" -InstallationPolicy Trusted -Verbose:($PSBoundParameters['Verbose'] -eq $true)
   }
 }
 
 # Package Provider
-Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Scope CurrentUser -Force
+Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Scope CurrentUser -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true)
 
 # Modules
 "PowerShellGet","posh-git" | ForEach-Object -process {
   if (-not (Get-Module -ListAvailable -Name "$_")) {
-    Install-Module "$_" -Scope CurrentUser -Force -Confirm:$false -Verbose
+    Install-Module "$_" -Scope CurrentUser -Force -Confirm:$false -Verbose:($PSBoundParameters['Verbose'] -eq $true)
   }
 }
 
@@ -35,8 +39,8 @@ If (-not $env:PATH.contains("Git")) {
     if ($_.name -match 'Git-\d*\.\d*\.\d*-64-bit\.exe') {
       $url = $_.browser_download_url
       $tmp = New-TemporaryFile
-      Invoke-WebRequest -Uri $url -OutFile "$tmp.exe" -Verbose
-      Start-Process -Wait "$tmp.exe" -ArgumentList /silent -Verbose
+      Invoke-WebRequest -Uri $url -OutFile "$tmp.exe" -Verbose:($PSBoundParameters['Verbose'] -eq $true)
+      Start-Process -Wait "$tmp.exe" -ArgumentList /silent -Verbose:($PSBoundParameters['Verbose'] -eq $true)
     }
   }
 }
@@ -44,9 +48,9 @@ If (-not $env:PATH.contains("Git")) {
 # Fetch REPO
 # Avoid Remove-Item issues.
 New-TemporaryFile | ForEach-Object {
-  Remove-Item "$_" -Force -Verbose
-  New-Item -Path "$_" -ItemType Directory -Force -Verbose
-  Move-Item -Path .\.git -Destination "$_\" -Force -Verbose
+  Remove-Item "$_" -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true)
+  New-Item -Path "$_" -ItemType Directory -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true)
+  Move-Item -Path .\.git -Destination "$_\" -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true)
 }
 
 <# TODO Need to investigate this further, why does this environment var
