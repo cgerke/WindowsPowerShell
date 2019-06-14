@@ -1,3 +1,4 @@
+exit
 
 function Get-Sandbox {
  Enable-WindowsOptionalFeature -FeatureName "Containers-DisposableClientVM" -All -Online
@@ -15,8 +16,6 @@ function Get-Telnet {
  } -verb RunAs
 }
 
-
-#region functions
 ${function:~} = { Set-Location ~ }
 ${function:Get-Fun} = { Get-ChildItem function:\ | select-String "-" | ForEach-Object { Get-Help $_ } | Format-Table -Property Name, Synopsis }
 ${function:Reload-Powershell} = { & $profile }
@@ -43,6 +42,7 @@ function Test-RegistryValue {
         return $false
     }
 }
+
 function Get-PowershellAs {
     <#
     .SYNOPSIS
@@ -95,9 +95,7 @@ function Get-PowershellAs {
     }
 
 }; Set-Alias "Get-Sudo" Get-PowershellAs
-#endregion powershell
 
-#region AD
 function Get-ADMemberCSV {
     <#
     .SYNOPSIS
@@ -164,7 +162,6 @@ function Get-LAPSExpiry{
     $PwdExp = Get-ADComputer $ComputerObj -Properties ms-MCS-AdmPwdExpirationTime
     $([datetime]::FromFileTime([convert]::ToInt64($PwdExp.'ms-MCS-AdmPwdExpirationTime',10)))
 }
-
 
 function Get-DotNet {
     $Lookup = @{
@@ -237,9 +234,7 @@ function Get-MSIProdCode {
         Get-ChildItem @gciParams | Where-Object $WhereBlock | Select-Object -Property $selectProperties
     }
 }
-#endregion IaC
 
-#region file helpers
 function Get-FilePathLength {
     <#
     .SYNOPSIS
@@ -303,9 +298,6 @@ Function Set-FileTime {
         $_.LastWriteTime = $date
     }
 }
-#endregion file helpers
-
-#region prompt
 
 <# $File = "C:\Users\$env:UserName\AppData\Roaming\Jabra Direct\Devices.txt"
 If ( Test-Path -Path $File ){
@@ -334,5 +326,3 @@ if ( Test-Path -path $json ) {
 
 #self executing function
 #& { param($msg) Write-Host $msg } "Hello World"
-
-Write-Host helloworld
