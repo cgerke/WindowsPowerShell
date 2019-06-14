@@ -18,6 +18,9 @@ Set-Location "$PSRoot\WindowsPowerShell" -ErrorAction Stop
   }
 }
 
+# Package Provider
+Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Scope CurrentUser -Force
+
 # Modules
 "PowerShellGet","posh-git" | ForEach-Object -process {
   if (-not (Get-Module -ListAvailable -Name "$_")) {
