@@ -1,19 +1,9 @@
-# Verbose
-[CmdletBinding()]
-Param()
-
 <#
 .Synopsis
   Setup WindowsPowerShell $profile on Windows
 .DESCRIPTION
   Invoke-Expression $(Invoke-WebRequest https://raw.githubusercontent.com/cgerke/WindowsPowerShell/master/install.ps1)
 #>
-
-# Setup $profile
-$PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
-Set-Location "$PSRoot\" -ErrorAction Stop -Verbose
-New-Item -Path "$PSRoot\WindowsPowerShell" -ItemType Directory -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true)
-Set-Location "$PSRoot\WindowsPowerShell" -ErrorAction Stop
 
 # Repositories
 "PSGallery" | ForEach-Object -process {
@@ -26,7 +16,7 @@ Set-Location "$PSRoot\WindowsPowerShell" -ErrorAction Stop
 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Scope CurrentUser -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true)
 
 # Modules
-"PowerShellGet","posh-git" | ForEach-Object -process {
+"PowerShellGet","posh-git","PSScriptAnalyzer" | ForEach-Object -process {
   if (-not (Get-Module -ListAvailable -Name "$_")) {
     Install-Module "$_" -Scope CurrentUser -Force -Confirm:$false -Verbose:($PSBoundParameters['Verbose'] -eq $true)
   }
@@ -46,24 +36,27 @@ If (-not $env:PATH.contains("Git")) {
 }
 
 # Fetch REPO
-# Avoid Remove-Item issues.
-New-TemporaryFile | ForEach-Object {
-  Remove-Item "$_" -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true)
-  New-Item -Path "$_" -ItemType Directory -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true)
-  Move-Item -Path .\.git -Destination "$_\" -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true)
-}
+$PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
+Remove-Item -Path "$PSRoot\WindowsPowerShell\.git" -Recurse -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true) -ErrorAction SilentlyContinue
 
 <# TODO Need to investigate this further, why does this environment var
 cause git init to fail? Should I just (temporarily remove HOMEPATH)
 Remove-Item Env:\HOMEPATH
 -or #>
-Set-Item -Path Env:HOME -Value $Env:USERPROFILE
-& git init
-& git remote add origin https://github.com/cgerke/WindowsPowerShell
-& git fetch --all
-& git reset --hard origin/master
-& git checkout master
-& git push --set-upstream origin master
+New-TemporaryFile | ForEach-Object {
+  Remove-Item "$_" -Force -Verbose
+  New-Item -Path "$_" -ItemType Directory -Force -Verbose
+  Set-Location "$_"
+  Set-Item -Path Env:HOME -Value $Env:USERPROFILE
+  Start-Process "git" -ArgumentList "init" -Wait -NoNewWindow
+  Start-Process "git" -ArgumentList "remote add origin https://github.com/cgerke/WindowsPowerShell" -Wait -NoNewWindow
+  Start-Process "git" -ArgumentList "fetch --all" -Wait -NoNewWindow
+  Start-Process "git" -ArgumentList "reset --hard origin/master" -Wait -NoNewWindow
+  Start-Process "git" -ArgumentList "checkout master" -Wait -NoNewWindow
+  Start-Process "git" -ArgumentList "push --set-upstream origin master" -Wait -NoNewWindow
+  Move-Item -Path .\.git -Destination "$PSRoot\WindowsPowerShell\" -Force -Verbose
+  Set-Location "$PSRoot\WindowsPowerShell\"
+}
 
 <# One profile to rule them all? This is annoying though, have to elevate
  to create symoblic links.
