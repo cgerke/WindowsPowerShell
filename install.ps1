@@ -51,11 +51,11 @@ New-TemporaryFile | ForEach-Object {
   Start-Process "git" -ArgumentList "init" -Wait -NoNewWindow
   Start-Process "git" -ArgumentList "remote add origin https://github.com/cgerke/WindowsPowerShell" -Wait -NoNewWindow
   Start-Process "git" -ArgumentList "fetch --all" -Wait -NoNewWindow
-  Start-Process "git" -ArgumentList "reset --hard origin/master" -Wait -NoNewWindow
   Start-Process "git" -ArgumentList "checkout master" -Wait -NoNewWindow
   Start-Process "git" -ArgumentList "push --set-upstream origin master" -Wait -NoNewWindow
   Move-Item -Path .\.git -Destination "$PSRoot\WindowsPowerShell\" -Force -Verbose
   Set-Location "$PSRoot\WindowsPowerShell\"
+  Start-Process "git" -ArgumentList "reset --hard origin/master" -Wait -NoNewWindow
 }
 
 <# One profile to rule them all? This is annoying though, have to elevate
