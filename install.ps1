@@ -8,19 +8,21 @@
 # Repositories
 "PSGallery" | ForEach-Object -process {
   if (-not (Get-PSRepository -Name "$_")) {
-    Set-PSRepository -Name "$_" -InstallationPolicy Trusted -Verbose:($PSBoundParameters['Verbose'] -eq $true)
+    # Example verbose parameter if I want to invoke the install.ps1 script silently later on.
+    #Set-PSRepository -Name "$_" -InstallationPolicy Trusted -Verbose:($PSBoundParameters['Verbose'] -eq $true)
+    Set-PSRepository -Name "$_" -InstallationPolicy Trusted -Verbose
   }
 }
 
 # Package Provider
 "Nuget" | ForEach-Object -process {
-   Install-PackageProvider -Name "$_" -Scope CurrentUser -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true)
+   Install-PackageProvider -Name "$_" -Scope CurrentUser -Force -Verbose
 }
 
 # Modules
 "PowerShellGet","posh-git","PSScriptAnalyzer" | ForEach-Object -process {
   if (-not (Get-Module -ListAvailable -Name "$_")) {
-    Install-Module "$_" -Scope CurrentUser -Force -Confirm:$false -Verbose:($PSBoundParameters['Verbose'] -eq $true)
+    Install-Module "$_" -Scope CurrentUser -Force -Confirm:$false -Verbose
   }
 }
 
@@ -31,15 +33,15 @@ If (-not $env:PATH.contains("Git")) {
     if ($_.name -match 'Git-\d*\.\d*\.\d*-64-bit\.exe') {
       $url = $_.browser_download_url
       $tmp = New-TemporaryFile
-      Invoke-WebRequest -Uri $url -OutFile "$tmp.exe" -Verbose:($PSBoundParameters['Verbose'] -eq $true)
-      Start-Process -Wait "$tmp.exe" -ArgumentList /silent -Verbose:($PSBoundParameters['Verbose'] -eq $true)
+      Invoke-WebRequest -Uri $url -OutFile "$tmp.exe" -Verbose
+      Start-Process -Wait "$tmp.exe" -ArgumentList /silent -Verbose
     }
   }
 }
 
 # Fetch REPO
 $PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
-Remove-Item -Path "$PSRoot\WindowsPowerShell\.git" -Recurse -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true) -ErrorAction SilentlyContinue
+Remove-Item -Path "$PSRoot\WindowsPowerShell\.git" -Recurse -Force -Verbose -ErrorAction SilentlyContinue
 
 <# TODO Need to investigate this further, why does this environment var
 cause git init to fail? Should I just (temporarily remove HOMEPATH)
