@@ -13,7 +13,9 @@
 }
 
 # Package Provider
-Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Scope CurrentUser -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true)
+"Nuget" | ForEach-Object -process {
+   Install-PackageProvider -Name "$_" -Scope CurrentUser -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true)
+}
 
 # Modules
 "PowerShellGet","posh-git","PSScriptAnalyzer" | ForEach-Object -process {
