@@ -20,7 +20,7 @@
 }
 
 # Modules
-"PowerShellGet","posh-git","PSScriptAnalyzer" | ForEach-Object -process {
+"PowerShellGet","posh-git","PSScriptAnalyzer","Plaster" | ForEach-Object -process {
   if (-not (Get-Module -ListAvailable -Name "$_")) {
     Install-Module "$_" -Scope CurrentUser -Force -Confirm:$false -Verbose
   }
