@@ -1,5 +1,19 @@
 exit
 
+function Set-Repository {
+  Import-Module PowerShellGet
+  $PsRepoPath = (Resolve-Path "C:\temp").ProviderPath
+  $PsRepo = @{
+    Name               = 'MyRepo'
+    SourceLocation     = $PsRepoPath
+    PublishLocation    = $PsRepoPath
+    InstallationPolicy = 'Trusted'
+  }
+  Register-PSRepository @PsRepo
+  Get-PSRepository
+  Find-Module -Repository 'MyRepo' -Verbose
+}
+
 function Get-Sandbox {
  Enable-WindowsOptionalFeature -FeatureName "Containers-DisposableClientVM" -All -Online
 }
