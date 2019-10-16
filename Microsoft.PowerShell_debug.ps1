@@ -110,28 +110,116 @@ function Get-PowershellAs {
 
 }; Set-Alias "Get-Sudo" Get-PowershellAs
 
-function Get-ADMemberCSV {
-    <#
-    .SYNOPSIS
-    Export AD group members to CSV.
-    .DESCRIPTION
-    Export AD group members to CSV.
-    .EXAMPLE
-    Get-ADMemberCSV -GroupObj MyAdGroup
-    .PARAMETER GroupObj
-    The group name. Just one.
-    #>
-    param (
-        [parameter(Mandatory=$true)]
-        [ValidateNotNullOrEmpty()]$GroupObj
-    )
+<# Active Directory LAZY ADMIN #>
 
-    try {
-        Get-ADGroupMember "$GroupObj" | Export-CSV -path "c:\temp\$GroupObj.csv"
-        explorer c:\temp
-    } catch {
-        return $false
-    }
+function Get-Group {
+<#
+.SYNOPSIS
+  Wilcard search for groups.
+.DESCRIPTION
+  Find groups with a quick wildcard search in Active Directory.
+.EXAMPLE
+  Get-Group "Fuzzy search"
+#>
+  Param(
+    [Parameter(Position=0,mandatory=$true)]
+    [string] $group
+  )
+  Get-ADGroup -Filter "name -like '*$group*'" | Select-Object Name | Out-String -Stream
+}
+
+function Get-GroupMember {
+<#
+.SYNOPSIS
+  Get group members.
+.DESCRIPTION
+  Find group members with a search in Active Directory.
+.EXAMPLE
+  Get-GroupMember "Group Name"
+#>
+  Param(
+    [Parameter(Position=0,mandatory=$true)]
+    [string] $group
+  )
+    Get-ADGroupMember -Identity "$group" | Get-ADUser | Select-Object givenname, surname, userprincipalname | Format-Table -AutoSize | Out-String -Stream
+}
+
+function Get-Title {
+<#
+.SYNOPSIS
+  Wildcard search titles.
+.DESCRIPTION
+  Find Titles with a quick wildcard search in Active Directory.
+.EXAMPLE
+  Get-Title "Team Leader"
+#>
+  Param(
+    [Parameter(Position=0,mandatory=$true)]
+    [string] $description
+  )
+    Get-ADUser -properties * -filter "title -like '*$description*'" | Select-Object GivenName,surname,company,department,description | Out-String -Stream
+}
+
+function Get-Expiry {
+<#
+.SYNOPSIS
+  Wildcard search account expiry.
+.DESCRIPTION
+  Find Expiry date with a quick wildcard search in Active Directory.
+.EXAMPLE
+  Get-PasswordExpiry "Chris"
+.EXAMPLE
+  Get-PasswordExpiry "Gerke"
+.EXAMPLE
+  Get-PasswordExpiry "Chris Gerke"
+.EXAMPLE
+  Get-PasswordExpiry "cgerke"
+#>
+  Param(
+    [Parameter(Position=0,mandatory=$true)]
+    [string] $Name
+  )
+  $displayName = Get-ADUser -properties * -filter "displayName -like '*$Name*'" | Select-Object GivenName,surname,company,department,description,AccountExpirationDate | Out-String -Stream
+  If ($displayName) {
+    # Probably doing a First, Last or Display Name search.
+    $displayName
+  } Else {
+    Get-ADUser -properties * -filter "samAccountName -like '*$Name*'" | Select-Object GivenName,surname,company,department,description,AccountExpirationDate | Out-String -Stream
+  }
+}
+
+function Get-PasswordExpiry {
+<#
+.SYNOPSIS
+  Wildcard search account password expiry.
+.DESCRIPTION
+  Find Password Expiry date with a quick wildcard search in Active Directory. The wildcard can be any
+  combination of First name and Last name or the samAccountName.
+.EXAMPLE
+  Get-PasswordExpiry "Chris"
+.EXAMPLE
+  Get-PasswordExpiry "Gerke"
+.EXAMPLE
+  Get-PasswordExpiry "Chris Gerke"
+.EXAMPLE
+  Get-PasswordExpiry "cgerke"
+#>
+  Param(
+    [Parameter(Position=0,mandatory=$true)]
+    [string] $Name
+  )
+  $maxPasswordAge = (Get-ADDefaultDomainPasswordPolicy).MaxPasswordAge.Days
+  $displayName = Get-ADUser -filter "displayName -like '*$Name*'" -Properties * |
+  Select-Object -Property "Displayname", @{n="ExpiryDate";e={$_.PasswordLastSet.AddDays($maxPasswordAge)}}
+  
+  If ($displayName) {
+    # Probably doing a First, Last or Display Name search.
+    $displayName
+  } Else {
+    # Probably doing a samAccount search.
+    Get-ADUser -filter "samAccountName -like '*$Name*'" -Properties * |
+    Select-Object -Property "Displayname", @{n="ExpiryDate";e={$_.PasswordLastSet.AddDays($maxPasswordAge)}}
+  }
 }
 
 function Get-LAPS {
@@ -316,7 +404,6 @@ Function Set-FileTime {
 <# $File = "C:\Users\$env:UserName\AppData\Roaming\Jabra Direct\Devices.txt"
 If ( Test-Path -Path $File ){
     $Hash = @{}
-
     [System.IO.File]::ReadLines($File) | ForEach-Object {
         If ( $_ | Select-String "Product Name:"){
             $k = $_.split(':')
