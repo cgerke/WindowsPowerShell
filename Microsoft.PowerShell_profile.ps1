@@ -18,6 +18,9 @@ if (Test-Path($ChocolateyProfile)) {
   Import-Module "$ChocolateyProfile"
 }
 
+choco install vscode -y
+choco install microsoft-windows-terminal -y
+
 # USER Env:Path
 function Set-EnvPath([string] $path ) {
   if ( -not [string]::IsNullOrEmpty($path) ) {
