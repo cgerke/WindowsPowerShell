@@ -13,6 +13,11 @@ Push-Location "$PSRoot\WindowsPowerShell"
     Invoke-Expression ". .\Microsoft.PowerShell_$_.ps1"
 }
 
+$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+if (Test-Path($ChocolateyProfile)) {
+  Import-Module "$ChocolateyProfile"
+}
+
 # USER Env:Path
 function Set-EnvPath([string] $path ) {
   if ( -not [string]::IsNullOrEmpty($path) ) {
