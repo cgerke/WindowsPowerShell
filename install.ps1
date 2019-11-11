@@ -39,6 +39,9 @@ If (-not $env:PATH.contains("Git")) {
   }
 }
 
+# Chocolatey
+Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+
 # Fetch REPO
 $PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
 Remove-Item -Path "$PSRoot\WindowsPowerShell\.git" -Recurse -Force -Verbose -ErrorAction SilentlyContinue
