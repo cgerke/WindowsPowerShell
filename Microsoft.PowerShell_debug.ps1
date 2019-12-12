@@ -189,21 +189,21 @@ function Get-Expiry {
 }
 
 function Get-PasswordExpiry {
-<#
-.SYNOPSIS
-  Wildcard search account password expiry.
-.DESCRIPTION
-  Find Password Expiry date with a quick wildcard search in Active Directory. The wildcard can be any
-  combination of First name and Last name or the samAccountName.
-.EXAMPLE
-  Get-PasswordExpiry "Chris"
-.EXAMPLE
-  Get-PasswordExpiry "Gerke"
-.EXAMPLE
-  Get-PasswordExpiry "Chris Gerke"
-.EXAMPLE
-  Get-PasswordExpiry "cgerke"
-#>
+  <#
+  .SYNOPSIS
+    Wildcard search account password expiry.
+  .DESCRIPTION
+    Find Password Expiry date with a quick wildcard search in Active Directory. The wildcard can be any
+    combination of First name and Last name or the samAccountName.
+  .EXAMPLE
+    Get-PasswordExpiry "Chris"
+  .EXAMPLE
+    Get-PasswordExpiry "Gerke"
+  .EXAMPLE
+    Get-PasswordExpiry "Chris Gerke"
+  .EXAMPLE
+    Get-PasswordExpiry "gerkec"
+  #>
   Param(
     [Parameter(Position=0,mandatory=$true)]
     [string] $Name
@@ -217,8 +217,11 @@ function Get-PasswordExpiry {
     $displayName
   } Else {
     # Probably doing a samAccount search.
+    Write-Host "Max Password Age"
+    Write-Host "------------"
+    Write-Host $maxPasswordAge
     Get-ADUser -filter "samAccountName -like '*$Name*'" -Properties * |
-    Select-Object -Property "Displayname", @{n="ExpiryDate";e={$_.PasswordLastSet.AddDays($maxPasswordAge)}}
+    Select-Object -Property "Displayname", PasswordLastSet, @{n="ExpiryDate";e={$_.PasswordLastSet.AddDays($maxPasswordAge)}}
   }
 }
 
