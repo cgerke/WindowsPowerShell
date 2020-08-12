@@ -7,10 +7,10 @@ function Get-Functions {
   <#
   .SYNOPSIS
     Display custom function names.
-    
+
   .DESCRIPTION
     Finds all non-system function names loaded into the powershell session.
-    
+
   .EXAMPLE
     Get-Functions
   #>
@@ -28,16 +28,6 @@ Push-Location "$PSRoot\WindowsPowerShell"
   Where-Object {Test-Path "Microsoft.PowerShell_$_.ps1"} |
   ForEach-Object -process {
     Invoke-Expression ". .\Microsoft.PowerShell_$_.ps1"
-}
-
-$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-if (Test-Path($ChocolateyProfile)) {
-  Import-Module "$ChocolateyProfile"
-} Else {
-  Write-Host "You might want:"
-  Write-Host "Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
-  Write-Host "choco install vscode -y"
-  Write-Host "choco install microsoft-windows-terminal -y"
 }
 
 # USER Env:Path
