@@ -30,6 +30,8 @@ Push-Location "$PSRoot\WindowsPowerShell"
     Invoke-Expression ". .\Microsoft.PowerShell_$_.ps1"
 }
 
+# winget checks here
+
 # USER Env:Path
 function Set-EnvPath([string] $path ) {
   if ( -not [string]::IsNullOrEmpty($path) ) {
