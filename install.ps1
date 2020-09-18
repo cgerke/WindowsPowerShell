@@ -14,21 +14,22 @@
   }
 }
 
-# Package Provider
+# Package Provider (Requires PSGallery Trust)
 "Nuget" | ForEach-Object -process {
    Install-PackageProvider -Name "$_" -Scope CurrentUser -Force -Verbose
 }
 
-# Modules
-"PowerShellGet","posh-git","PSScriptAnalyzer","Plaster","PSSudo" | ForEach-Object -process {
+# Modules (Requires Nuget)
+"PowerShellGet","posh-git","PSScriptAnalyzer","Pester","Plaster","PSSudo" | ForEach-Object -process {
   if (-not (Get-Module -ListAvailable -Name "$_")) {
     Install-Module "$_" -Scope CurrentUser -Force -Confirm:$false -Verbose
   }
 }
 
 # Git
-If (-not $env:PATH.contains("Git")) {
-  winget install git
+$git = $(Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*  | Where-Object {$_.DisplayName -like "*Git*"})
+If (-not ($git)) {
+  winget install --id Git.Git --silent
 }
 
 # Fetch REPO
