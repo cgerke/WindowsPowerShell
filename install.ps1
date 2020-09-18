@@ -28,15 +28,7 @@
 
 # Git
 If (-not $env:PATH.contains("Git")) {
-  (Invoke-RestMethod https://api.github.com/repos/git-for-windows/git/releases/latest).assets |
-    ForEach-Object -process {
-    if ($_.name -match 'Git-.*-64-bit\.exe') {
-      $url = $_.browser_download_url
-      $tmp = New-TemporaryFile
-      Invoke-WebRequest -Uri $url -OutFile "$tmp.exe" -Verbose
-      Start-Process -Wait "$tmp.exe" -ArgumentList /silent -Verbose
-    }
-  }
+  winget install git
 }
 
 # Fetch REPO
