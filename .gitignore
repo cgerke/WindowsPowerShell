@@ -8,5 +8,6 @@
 !Microsoft.PowerShell.code-workspace
 !Microsoft.VSCode_profile.ps1
 !powershell.json
+!PSScriptAnalyzerSettings.psd1
 /bin
 /Modules
