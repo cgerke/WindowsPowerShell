@@ -30,6 +30,7 @@ function Test-IsAdmin {
 }
 
 function prompt {
+  
   # WindowsPowershell version
   $PSVersionTable.PSVersion |
     ForEach-Object -process { "$_ " } |
@@ -46,6 +47,7 @@ function prompt {
   # Host
   Write-Host "$env:COMPUTERNAME " -NoNewline -ForegroundColor White
   Write-Host $ExecutionContext.SessionState.Path.CurrentLocation -ForegroundColor Gray -NoNewline
+  
   # Git
   Write-VcsStatus
 
