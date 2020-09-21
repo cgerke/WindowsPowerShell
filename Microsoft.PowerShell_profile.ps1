@@ -29,11 +29,8 @@ function prompt {
     Write-Host " $env:USERNAME " -NoNewline -ForegroundColor White
   }
 
-  # Host
   Write-Host "$env:COMPUTERNAME " -NoNewline -ForegroundColor White
   Write-Host $ExecutionContext.SessionState.Path.CurrentLocation -ForegroundColor Gray -NoNewline
-  
-  # Git
   Write-VcsStatus
 
   # Prompt
