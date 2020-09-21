@@ -2,23 +2,6 @@
 
 $PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
 
-$CustomFunctions = Get-ChildItem function:
-function Get-Functions {
-  <#
-  .SYNOPSIS
-    Display custom function names.
-
-  .DESCRIPTION
-    Finds all non-system function names loaded into the powershell session.
-
-  .EXAMPLE
-    Get-Functions
-  #>
-  Get-ChildItem function: | Where-Object {$CustomFunctions -notcontains $_} |
-  Where-Object {$_.Source -NotMatch "Microsoft.PowerShell.Utility"} |
-  Select-Object -Property Name
-}
-
 <# . source
 But research the best way to use "preferences" and debug
 workflows.
