@@ -420,6 +420,18 @@ If ( Test-Path -Path $File ){
     $Hash
 } #>
 
+<# . source
+But research the best way to use "preferences" and debug
+workflows.
+#>
+$PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
+Push-Location "$PSRoot\WindowsPowerShell"
+"preferences","debug" |
+  Where-Object {Test-Path "Microsoft.PowerShell_$_.ps1"} |
+  ForEach-Object -process {
+    Invoke-Expression ". .\Microsoft.PowerShell_$_.ps1"
+}
+
 <# #consuming json
 $json = Join-Path -Path $PSDirectory -ChildPath "Microsoft.PowerShell_options.json"
 if ( Test-Path -path $json ) {

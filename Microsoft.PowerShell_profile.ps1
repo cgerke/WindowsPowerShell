@@ -1,20 +1,5 @@
 [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls" # Support TLS
 
-$PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
-
-<# . source
-But research the best way to use "preferences" and debug
-workflows.
-#>
-Push-Location "$PSRoot\WindowsPowerShell"
-"preferences","debug" |
-  Where-Object {Test-Path "Microsoft.PowerShell_$_.ps1"} |
-  ForEach-Object -process {
-    Invoke-Expression ". .\Microsoft.PowerShell_$_.ps1"
-}
-
-# winget checks here
-
 # USER Env:Path
 function Set-EnvPath([string] $path ) {
   if ( -not [string]::IsNullOrEmpty($path) ) {
@@ -30,7 +15,7 @@ function Test-IsAdmin {
 }
 
 function prompt {
-  
+
   # WindowsPowershell version
   $PSVersionTable.PSVersion |
     ForEach-Object -process { "$_ " } |
