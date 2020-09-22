@@ -1,5 +1,3 @@
-[Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls" # Support TLS
-
 # USER Env:Path
 function Set-EnvPath([string] $path ) {
   if ( -not [string]::IsNullOrEmpty($path) ) {
