@@ -8,6 +8,7 @@
 !Microsoft.PowerShell.code-workspace
 !Microsoft.VSCode_profile.ps1
 !Module.psm1
+!plaster.ps1
 !powershell.json
 !PSScriptAnalyzerSettings.psd1
 !PlasterManifest.xml

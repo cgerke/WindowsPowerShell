@@ -22,6 +22,11 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "Plaster Template",
+            "type" : "shell",
+            "command" : "${cwd}/plaster.ps1"
         }
     ]
 }
