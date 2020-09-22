@@ -7,7 +7,9 @@
 !Microsoft.PowerShell_profile.ps1
 !Microsoft.PowerShell.code-workspace
 !Microsoft.VSCode_profile.ps1
+!Module.psm1
 !powershell.json
 !PSScriptAnalyzerSettings.psd1
+!PlasterManifest.xml
 /bin
 /Modules
