@@ -34,3 +34,9 @@ function prompt {
   # Prompt
   "`n$('PS>' * ($nestedPromptLevel + 1)) "
 }
+
+<#
+$PSPath = "$(Split-Path -Parent $PROFILE)"
+$ModulePath = "$PSPath\Modules)
+Invoke-Plaster -TemplatePath "$PSPath" -DestinationPath $ModulePath -Verbose
+#>
