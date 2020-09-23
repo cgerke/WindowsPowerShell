@@ -14,6 +14,12 @@
 		"powershell.codeFormatting.useCorrectCasing": true,
 		"powershell.codeFormatting.preset": "Allman",
 		"powershell.codeFormatting.whitespaceBetweenParameters": true,
+		"editor.tabSize": 4,
+		"diffEditor.ignoreTrimWhitespace": false,
+		"editor.renderWhitespace": "all",
+		"files.trimTrailingWhitespace": true,
+		"powershell.enableProfileLoading": true,
+		"terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
 		"terminal.integrated.shellArgs.windows": "-ExecutionPolicy RemoteSigned"
 	},
 	"launch": {
