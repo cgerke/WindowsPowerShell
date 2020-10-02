@@ -15,18 +15,13 @@
     },
     "tasks": [
         {
-            "label": "Debug",
-            "type": "shell",
-            "command": "${cwd}/debug.ps1",
+            "label": "Plaster Template",
+            "type" : "shell",
+            "command" : "${cwd}/plaster.ps1",
             "group": {
                 "kind": "build",
                 "isDefault": true
             }
-        },
-        {
-            "label": "Plaster Template",
-            "type" : "shell",
-            "command" : "${cwd}/plaster.ps1"
         }
     ]
 }
