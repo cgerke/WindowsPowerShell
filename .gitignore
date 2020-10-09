@@ -17,6 +17,8 @@ Modules/*
 !Modules/orgComputer
 !Modules/orgGroup
 !Modules/orgGroupMember
+!Modules/orgPassword
 !Modules/orgUser
 !Modules/orgUserExpiry
+!Modules/orgUserPasswordExpiry
 !Modules/ToshibaWarranty
