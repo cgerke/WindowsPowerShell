@@ -12,7 +12,6 @@
 !PSScriptAnalyzerSettings.psd1
 !PlasterManifest.xml
 !playground.ps1
-/bin
-/Modules
-!/Modules/orgComputer/*
-!/Modules/orgUserExpiry/*
+!Modules/
+Modules/*
+!Modules/orgUserExpiry
