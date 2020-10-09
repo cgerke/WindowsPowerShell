@@ -14,5 +14,5 @@
 !playground.ps1
 /bin
 /Modules
-!/Modules/orgComputer
-!/Modules/orgUserExpiry
+!/Modules/orgComputer/*
+!/Modules/orgUserExpiry/*
