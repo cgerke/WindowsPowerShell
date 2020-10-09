@@ -15,4 +15,5 @@
 !Modules/
 Modules/*
 !Modules/orgComputer
+!Modules/orgGroup
 !Modules/orgUserExpiry
