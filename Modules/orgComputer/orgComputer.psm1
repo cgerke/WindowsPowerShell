@@ -109,7 +109,7 @@ function Get-ComputerUptime
         Name = $i
         LastBootUpTime = (Get-Date) - $CIMos.LastBootUpTime  | Format-TimeSpan
       }
-      $ComputerCO
+      return $ComputerCO
     }
   }
 
