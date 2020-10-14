@@ -1,4 +1,4 @@
-﻿Function Get-GroupRecurse ([string]$Group)
+Function Get-GroupRecurse ([string]$Group)
 {
   ForEach ($Object in (Get-ADGroupMember -Identity $Group) )
   {
