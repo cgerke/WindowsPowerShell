@@ -107,7 +107,8 @@ function Get-ComputerUptime
       $CIMos = Get-CimInstance -CimSession $CimSession -ClassName Win32_OperatingSystem
       $ComputerCO = [PSCustomObject]@{
         Name = $i
-        LastBootUpTime = (Get-Date) - $CIMos.LastBootUpTime  | Format-TimeSpan
+        LastBootUpTime = $CIMos.LastBootUpTime
+        LastBootUpTimeRelative = (Get-Date) - $CIMos.LastBootUpTime  | Format-TimeSpan
       }
       return $ComputerCO
     }
