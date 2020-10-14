@@ -43,7 +43,7 @@
   $TotalDiskSpace = [math]::round($CIMdisk.Size / 1GB, 0)
   $FreeDiskSpace = [math]::round($CIMdisk.FreeSpace / 1GB, 0)
 
-  $computerdata = [PSCustomObject]@{
+  $ComputerCO = [PSCustomObject]@{
     Name = $Computer
     Manufacturer = $CIMcs.Manufacturer
     Model = $CIMcs.Model
@@ -59,7 +59,7 @@
     InstallDate = $CIMos.InstallDate
   }
 
-  $computerdata
+  $ComputerCO
 
   # Updates
   Get-CimInstance -CimSession $CimSession -ClassName Win32_QuickFixEngineering |
@@ -68,3 +68,49 @@
   Format-Table
 }
 
+function Format-TimeSpan {
+  process {
+    "{0:00} days {1:00} hours {2:00} minutes {3:00} seconds" -f $_.Days,$_.Hours,$_.Minutes,$_.Seconds
+  }
+}
+
+function Get-ComputerUptime
+{
+  <#
+    .SYNOPSIS
+      System uptime
+    .DESCRIPTION
+      Retrieve system uptime from a remote computer.
+    .EXAMPLE
+      Get-ComputerUptime -Computer $hostname
+    #>
+  Param(
+    [Parameter(Position = 0, mandatory = $true, ValueFromPipeline = $true)]
+    [string[]] $Computer
+  )
+
+  process {
+    foreach ( $i in $Computer ) {
+      ### WinRM remoting by default
+      ### Enable-PSRemoting -SkipNetworkProfileCheck -Force
+      If (Test-WSMan -ComputerName $i -ErrorAction SilentlyContinue)
+      {
+        $CimSession = New-CimSession -ComputerName $i
+      }
+      Else
+      {
+        # Use DCOM if WinRM is not available
+        $CimSessionOption = New-CimSessionOption -Protocol "DCOM"
+        $CimSession = New-CimSession -ComputerName $i -SessionOption $CimSessionOption
+      }
+
+      $CIMos = Get-CimInstance -CimSession $CimSession -ClassName Win32_OperatingSystem
+      $ComputerCO = [PSCustomObject]@{
+        Name = $i
+        LastBootUpTime = (Get-Date) - $CIMos.LastBootUpTime  | Format-TimeSpan
+      }
+      $ComputerCO
+    }
+  }
+
+}
