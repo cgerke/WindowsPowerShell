@@ -8,7 +8,10 @@
     }
     else
     {
-      [PSCustomObject]@{Group = $Group; User = $Object.Name; }
+      [PSCustomObject]@{
+        Group = $Group
+        User = $(Get-ADUser -Identity $Object.Name -Property DisplayName | Select-Object DisplayName).DisplayName
+      }
     }
   }
 }
@@ -30,6 +33,5 @@ function Get-GroupMember
     [string] $Name
   )
 
-  $return = Get-GroupRecurse "$Name"
-  $return | Sort-Object Group
+  Get-GroupRecurse "$Name" | Sort-Object Group
 }
