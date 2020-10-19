@@ -3,7 +3,6 @@
         "vscodevim.vim",
         "ms-vscode.powershell",
         "msazurermtools.azurerm-vscode-tools",
-        "ms-vscode.vscode-node-azure-pack",
-        "ms-vsts.team"
+        "ms-vscode.vscode-node-azure-pack"
     ]
 }
