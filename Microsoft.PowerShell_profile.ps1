@@ -20,6 +20,10 @@ function prompt {
     Write-Host -NoNewLine -ForegroundColor Cyan
   Write-Host $(Get-ExecutionPolicy) -NoNewline -ForegroundColor Cyan
 
+  # Windows Terminal version
+  #$WindowsTerminal = (Get-AppxPackage -Name Microsoft.WindowsTerminal).Version
+  #Write-Host " $WindowsTerminal" -NoNewline -ForegroundColor Cyan
+
   # User
   If (Test-IsAdmin) {  # if elevated
     Write-Host " (Elevated $env:USERNAME ) " -NoNewline -ForegroundColor Red
