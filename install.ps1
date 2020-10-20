@@ -20,7 +20,7 @@
 }
 
 # Modules (Requires Nuget)
-"PowerShellGet","oh-my-posh","posh-git","PSScriptAnalyzer","Pester","Plaster","PSSudo" | ForEach-Object -process {
+"PowerShellGet","oh-my-posh","posh-git","PSReadLine", "PSScriptAnalyzer","Pester","Plaster","PSSudo" | ForEach-Object -process {
   if (-not (Get-Module -ListAvailable -Name "$_")) {
     Install-Module "$_" -Scope CurrentUser -Force -Confirm:$false -Verbose
   }
