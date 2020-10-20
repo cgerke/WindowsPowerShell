@@ -1,6 +1,6 @@
 <#
 .Synopsis
-  Setup WindowsPowerShell $profile on Windows
+  Setup WindowsPowerShell on Windows
 .DESCRIPTION
   Invoke-Expression $(Invoke-WebRequest https://raw.githubusercontent.com/cgerke/WindowsPowerShell/master/install.ps1)
 #>
@@ -8,15 +8,13 @@
 # Repositories
 "PSGallery" | ForEach-Object -process {
   if (-not (Get-PSRepository -Name "$_")) {
-    # Example verbose parameter if I want to invoke the install.ps1 script silently later on.
-    #Set-PSRepository -Name "$_" -InstallationPolicy Trusted -Verbose:($PSBoundParameters['Verbose'] -eq $true)
     Set-PSRepository -Name "$_" -InstallationPolicy Trusted -Verbose
   }
 }
 
 # Package Provider (Requires PSGallery Trust)
 "Nuget" | ForEach-Object -process {
-   Install-PackageProvider -Name "$_" -Scope CurrentUser -Force -Verbose
+   Install-PackageProvider -Name "$_" -Scope CurrentUser -Force Confirm:$false -Verbose
 }
 
 # Modules (Requires Nuget)
@@ -35,8 +33,8 @@ If (-not ($git)) {
 # Fetch REPO
 New-Item -Path $Profile -Type File
 $PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
-Remove-Item -Path $Profile
 Remove-Item -Path "$PSRoot\WindowsPowerShell\.git" -Recurse -Force -Verbose -ErrorAction SilentlyContinue
+Remove-Item -Path $Profile
 
 <# TODO Need to investigate this further, why does this environment var
 cause git init to fail? Should I just (temporarily remove HOMEPATH)
@@ -56,12 +54,3 @@ New-TemporaryFile | ForEach-Object {
   Set-Location "$PSRoot\WindowsPowerShell\"
   Start-Process "git" -ArgumentList "reset --hard origin/master" -Wait -NoNewWindow
 }
-
-<# One profile to rule them all? This is annoying though, have to elevate
- to create symoblic links.
-
-New-Item -ItemType SymbolicLink `
-  -Path "$PSRoot\PowerShell" `
-  -Name "Microsoft.PowerShell_profile.ps1" `
-  -Target "$PSRoot\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
-#>
