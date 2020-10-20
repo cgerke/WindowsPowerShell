@@ -14,7 +14,7 @@
 
 # Package Provider (Requires PSGallery Trust)
 "Nuget" | ForEach-Object -process {
-   Install-PackageProvider -Name "$_" -Scope CurrentUser -Force Confirm:$false -Verbose
+   Install-PackageProvider -Name "$_" -Scope CurrentUser -Force -Verbose
 }
 
 # Modules (Requires Nuget)
@@ -34,15 +34,15 @@ If (-not ($git)) {
 New-Item -Path $Profile -Type File
 $PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
 $PWShell = "$PSRoot\WindowsPowerShell"
-Remove-Item -Path "$PWShell\.git" -Recurse -Force -Verbose -ErrorAction SilentlyContinue
-Remove-Item -Path $Profile -Force -Verbose -ErrorAction SilentlyContinue
+Remove-Item -Path "$PWShell\.git" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path $Profile -Force -ErrorAction SilentlyContinue
 
 <# TODO Need to investigate this further, why does this environment var
 cause git init to fail? Should I just (temporarily remove HOMEPATH)
 Remove-Item Env:\HOMEPATH
 -or #>
 New-TemporaryFile | ForEach-Object {
-  Remove-Item "$_" -Force -Verbose
+  Remove-Item "$_" -Force -ErrorAction SilentlyContinue
   New-Item -Path "$_" -ItemType Directory -Force -Verbose
   Set-Location "$_"
   Set-Item -Path Env:HOME -Value $Env:USERPROFILE
