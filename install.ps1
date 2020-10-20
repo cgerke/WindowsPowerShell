@@ -33,7 +33,9 @@ If (-not ($git)) {
 }
 
 # Fetch REPO
+New-Item -Path $Profile -Type File
 $PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
+Remove-Item -Path $Profile
 Remove-Item -Path "$PSRoot\WindowsPowerShell\.git" -Recurse -Force -Verbose -ErrorAction SilentlyContinue
 
 <# TODO Need to investigate this further, why does this environment var
