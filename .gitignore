@@ -20,3 +20,4 @@ Modules/*
 !PlasterManifest.xml
 !playground.ps1
 !PSScriptAnalyzerSettings.psd1
+!settings.json
