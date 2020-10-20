@@ -1,4 +1,5 @@
 /*
+!.gitignore
 .DS_Store
 !.vscode
 !CascadiaCode/*
@@ -12,7 +13,6 @@ Modules/*
 !Modules/orgUserExpiry
 !Modules/orgUserPasswordExpiry
 !Modules/ToshibaWarranty
-!.gitignore
 !install.ps1
 !Microsoft.PowerShell.code-workspace
 !Microsoft.VSCode_profile.ps1
