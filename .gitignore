@@ -3,7 +3,6 @@
 !.vscode
 !.gitignore
 !install.ps1
-!Microsoft.PowerShell_profile.ps1
 !Microsoft.PowerShell.code-workspace
 !Microsoft.VSCode_profile.ps1
 !Module.psm1
