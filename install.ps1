@@ -27,14 +27,14 @@
 # Git
 $git = $(Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*  | Where-Object {$_.DisplayName -like "*Git*"})
 If (-not ($git)) {
-  winget install --id Git.Git --silent
+  Start-Process "winget" -ArgumentList "install --id Git.Git --silent" -Wait -NoNewWindow
 }
 
 # Fetch REPO
 New-Item -Path $Profile -Type File
 $PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
 Remove-Item -Path "$PSRoot\WindowsPowerShell\.git" -Recurse -Force -Verbose -ErrorAction SilentlyContinue
-Remove-Item -Path $Profile
+Remove-Item -Path $Profile -Force -Verbose -ErrorAction SilentlyContinue
 
 <# TODO Need to investigate this further, why does this environment var
 cause git init to fail? Should I just (temporarily remove HOMEPATH)
