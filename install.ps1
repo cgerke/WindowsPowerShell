@@ -33,7 +33,8 @@ If (-not ($git)) {
 # Fetch REPO
 New-Item -Path $Profile -Type File
 $PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
-Remove-Item -Path "$PSRoot\WindowsPowerShell\.git" -Recurse -Force -Verbose -ErrorAction SilentlyContinue
+$PWShell = "$PSRoot\WindowsPowerShell"
+Remove-Item -Path "$PWShell\.git" -Recurse -Force -Verbose -ErrorAction SilentlyContinue
 Remove-Item -Path $Profile -Force -Verbose -ErrorAction SilentlyContinue
 
 <# TODO Need to investigate this further, why does this environment var
@@ -50,7 +51,9 @@ New-TemporaryFile | ForEach-Object {
   Start-Process "git" -ArgumentList "fetch --all" -Wait -NoNewWindow
   Start-Process "git" -ArgumentList "checkout master" -Wait -NoNewWindow
   Start-Process "git" -ArgumentList "push --set-upstream origin master" -Wait -NoNewWindow
-  Move-Item -Path .\.git -Destination "$PSRoot\WindowsPowerShell\" -Force -Verbose
-  Set-Location "$PSRoot\WindowsPowerShell\"
+  Move-Item -Path .\.git -Destination "$PWShell\" -Force -Verbose
+  Set-Location "$PWShell"
   Start-Process "git" -ArgumentList "reset --hard origin/master" -Wait -NoNewWindow
+  Set-Location "$PSRoot"
+  Set-Location "$PWShell"
 }
