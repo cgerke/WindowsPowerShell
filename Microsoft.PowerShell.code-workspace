@@ -20,7 +20,7 @@
 		"files.trimTrailingWhitespace": true,
 		"powershell.enableProfileLoading": true,
 		"terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-		"terminal.integrated.shellArgs.windows": "-ExecutionPolicy RemoteSigned -NoLogo"
+		"terminal.integrated.shellArgs.windows": ["-ExecutionPolicy","RemoteSigned","-NoLogo"]
 	},
 	"launch": {
 		"version": "0.2.0",
