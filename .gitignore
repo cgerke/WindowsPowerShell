@@ -14,7 +14,7 @@ Modules/*
 !Modules/orgUserExpiry
 !Modules/orgUserPasswordExpiry
 !Modules/ToshibaWarranty
-!install.ps1
+!init.ps1
 !Microsoft.PowerShell.code-workspace
 !Microsoft.VSCode_profile.ps1
 !Module.psm1
