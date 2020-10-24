@@ -6,7 +6,8 @@
 	],
 	"settings": {
 		"files.exclude": {
-			"**/*.exe": true
+			"**/*.exe": true,
+			"**/CascadiaCode":true
 		},
 		"telemetry.enableTelemetry": false,
 		"powershell.codeFormatting.autoCorrectAliases": true,

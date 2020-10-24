@@ -59,3 +59,8 @@ New-TemporaryFile | ForEach-Object {
   Add-Type -AssemblyName System.Windows.Forms
   [System.Windows.Forms.SendKeys]::SendWait("%n{ENTER}")
 }
+
+# Windows Terminal Powerline Font
+if (-not (Test-Path "$PWShell\CascadiaCode\ttf\CascadiaCodePL.ttf")){
+  Copy-Item -Path "$PWShell\CascadiaCode\ttf\CascadiaCodePL.ttf" "$env:WINDIR\Fonts\"
+}
