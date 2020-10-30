@@ -110,50 +110,6 @@ function Get-PowershellAs {
 
 }; Set-Alias "Get-Sudo" Get-PowershellAs
 
-<# Active Directory LAZY ADMIN #>
-function Get-LAPS {
-    <#
-    .SYNOPSIS
-    https://technet.microsoft.com/en-us/mt227395.aspx
-    .DESCRIPTION
-    Query Active Directory for the local administrator password of a ComputerObj.
-    .EXAMPLE
-    Get-LAPS -ComputerObj mycomputer-1
-    .PARAMETER ComputerObj
-    The computer name to query. Just one.
-    #>
-    param (
-        [parameter(Mandatory=$True)]
-        [ValidateNotNullOrEmpty()]$ComputerObj
-    )
-
-    try {
-        Get-ADComputer $ComputerObj -Properties ms-Mcs-AdmPwd | Select-Object name, ms-Mcs-AdmPwd
-    } catch {
-        return $false
-    }
-}; Set-Alias laps Get-LAPS
-
-function Get-LAPSExpiry{
-    <#
-    .SYNOPSIS
-    https://technet.microsoft.com/en-us/mt227395.aspx
-    .DESCRIPTION
-    Query Active Directory for the local administrator password expiry date for a ComputerObj.
-    .EXAMPLE
-    Get-LAPSExpiry -ComputerObj mycomputer-1
-    .PARAMETER ComputerObj
-    The computer name to query. Just one.
-    #>
-    param (
-        [parameter(Mandatory=$true)]
-        [ValidateNotNullOrEmpty()]$ComputerObj
-    )
-
-    $PwdExp = Get-ADComputer $ComputerObj -Properties ms-MCS-AdmPwdExpirationTime
-    $([datetime]::FromFileTime([convert]::ToInt64($PwdExp.'ms-MCS-AdmPwdExpirationTime',10)))
-}
-
 function Get-DotNet {
     $Lookup = @{
         378389 = [version]'4.5'
