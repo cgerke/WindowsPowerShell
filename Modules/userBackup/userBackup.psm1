@@ -6,7 +6,7 @@
   .DESCRIPTION
     Robocopy with progress and log files.
   .EXAMPLE
-    Copy-WithRobocopy -Source "$env:APPDATA\Microsoft\Signatures" -Destination "$env:OneDrive\Backup\Signatures" -Verbose;
+    Copy-WithRobocopy -Source "$env:APPDATA\Microsoft\Signatures" -Destination "$env:OneDrive\Backup\Signatures"
   #>
   [CmdletBinding()]
   param (
