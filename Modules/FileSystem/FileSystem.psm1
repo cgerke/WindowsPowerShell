@@ -1,4 +1,5 @@
-﻿function Get-FilePathLength {
+﻿function Get-FilePathLength
+{
   <#
   .SYNOPSIS
   Count file path characters.
@@ -10,16 +11,17 @@
   The folder path to query. Just one.
   #>
   param (
-      [parameter(Mandatory=$true)]
-      [ValidateNotNullOrEmpty()]$Path
+    [parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]$Path
   )
   Get-ChildItem -Path "$Path" -Recurse -Force |
-      #Where-Object {$_.FullName.length -ge 248 } |
-      Select-Object -Property FullName, @{Name="FullNameLength";Expression={($_.FullName.Length)}} |
-      Sort-Object -Property FullNameLength -Descending
+  #Where-Object {$_.FullName.length -ge 248 } |
+  Select-Object -Property FullName, @{Name = "FullNameLength"; Expression = { ($_.FullName.Length) } } |
+  Sort-Object -Property FullNameLength -Descending
 }
 
-function Remove-ReadOnly {
+function Remove-ReadOnly
+{
   <#
   .SYNOPSIS
   Recursively remove read only attributes.
@@ -31,13 +33,14 @@ function Remove-ReadOnly {
   Mandatory file or folder path.
   #>
   param (
-      [Parameter(Mandatory = $True)]
-      [ValidateNotNullOrEmpty()]$Path
+    [Parameter(Mandatory = $True)]
+    [ValidateNotNullOrEmpty()]$Path
   )
-  Get-ChildItem "$Path" -Recurse | ForEach-Object {$_.Attributes = 'Normal'}
+  Get-ChildItem "$Path" -Recurse | ForEach-Object { $_.Attributes = 'Normal' }
 }
 
-Function Set-FileTime {
+Function Set-FileTime
+{
   <#
   .SYNOPSIS
   Set a date stamp attribute.
@@ -49,17 +52,17 @@ Function Set-FileTime {
   Mandatory file system path
   #>
   Param (
-      [Parameter(mandatory = $true)]
-      [string[]]$Path,
-      [Parameter(mandatory = $true)]
-      [datetime]$date
+    [Parameter(mandatory = $true)]
+    [string[]]$Path,
+    [Parameter(mandatory = $true)]
+    [datetime]$date
   )
 
   Get-ChildItem -Path "$Path" |
 
   ForEach-Object {
-      $_.CreationTime = $date
-      $_.LastWriteTime = $date
+    $_.CreationTime = $date
+    $_.LastWriteTime = $date
   }
 }
 
@@ -80,15 +83,16 @@ function Copy-WithRobocopy
     [Parameter(Mandatory = $true)]
     [string] $Destination)
 
-    robocopy "$Source" "$Destination" /MIR /NDL /NJH /NJS |
-    ForEach-Object {
-      $data = $_.Split([char]9);
-      if ("$($data[4])" -ne "") {
-        $file = "$($data[4])"
-      };
-      Write-Progress "Percentage $($data[0])" -Activity "Robocopy" -CurrentOperation "$($file)" -ErrorAction SilentlyContinue;
-      "$($data[0]) $($file)" | Tee-Object -FilePath "C:\temp\robo.txt" -Append
-    }
+  robocopy "$Source" "$Destination" /MIR /NDL /NJH /NJS |
+  ForEach-Object {
+    $data = $_.Split([char]9);
+    if ("$($data[4])" -ne "")
+    {
+      $file = "$($data[4])"
+    };
+    Write-Progress "Percentage $($data[0])" -Activity "Robocopy" -CurrentOperation "$($file)" -ErrorAction SilentlyContinue;
+    "$($data[0]) $($file)" | Tee-Object -FilePath "C:\temp\robo.txt" -Append
+  }
 }
 
 function New-Backup
