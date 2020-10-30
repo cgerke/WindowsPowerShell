@@ -5,6 +5,7 @@
 !CascadiaCode/*
 !Modules/
 Modules/*
+!Modules/FileSystem
 !Modules/orgComputer
 !Modules/orgGroup
 !Modules/orgGroupMember
@@ -14,7 +15,6 @@ Modules/*
 !Modules/orgUserExpiry
 !Modules/orgUserPasswordExpiry
 !Modules/ToshibaWarranty
-!Modules/userBackup
 !init.ps1
 !Microsoft.PowerShell.code-workspace
 !Microsoft.VSCode_profile.ps1
