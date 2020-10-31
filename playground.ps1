@@ -41,22 +41,6 @@ function Restart-Powershell {
     exit
 }
 
-function Test-RegistryValue {
-    param (
-        [parameter(Mandatory=$true)]
-        [ValidateNotNullOrEmpty()]$Path,
-        [parameter(Mandatory=$true)]
-        [ValidateNotNullOrEmpty()]$Value
-    )
-
-    try {
-        Get-ItemProperty -Path $Path | Select-Object -ExpandProperty $Value -ErrorAction Stop | Out-Null
-        return $true
-    } catch {
-        return $false
-    }
-}
-
 function Get-PowershellAs {
     <#
     .SYNOPSIS
@@ -108,78 +92,6 @@ function Get-PowershellAs {
         }
     }
 
-}; Set-Alias "Get-Sudo" Get-PowershellAs
-
-function Get-DotNet {
-    $Lookup = @{
-        378389 = [version]'4.5'
-        378675 = [version]'4.5.1'
-        378758 = [version]'4.5.1'
-        379893 = [version]'4.5.2'
-        393295 = [version]'4.6'
-        393297 = [version]'4.6'
-        394254 = [version]'4.6.1'
-        394271 = [version]'4.6.1'
-        394802 = [version]'4.6.2'
-        394806 = [version]'4.6.2'
-        460798 = [version]'4.7'
-        460805 = [version]'4.7'
-        461308 = [version]'4.7.1'
-        461310 = [version]'4.7.1'
-        461808 = [version]'4.7.2'
-        461814 = [version]'4.7.2'
-    }
-
-    Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP' -Recurse |
-        Get-ItemProperty -name Version, Release -EA 0 |
-        Where-Object { $_.PSChildName -match '^(?!S)\p{L}'} |
-        Select-Object @{name = ".NET Framework"; expression = {$_.PSChildName}},
-    @{name = "Product"; expression = {$Lookup[$_.Release]}},
-    Version, Release
-}
-
-function Get-MSIProdCode {
-    <#
-    .SYNOPSIS
-        Retrieves a list of all installed software UNINSTALL msi product codes.
-    .EXAMPLE
-        This example retrieves all installed software UNINSTALL msi product codes.
-        Get-MSIProdCode
-    .EXAMPLE
-        This example retrieves all installed software UNINSTALL msi product codes including 'Office' in the display name.
-        Get-MSIProdCode -DisplayName "Office"
-    .PARAMETER Name
-        The software title you'd like to limit the query to.
-    #>
-    [OutputType([System.Management.Automation.PSObject])]
-    [CmdletBinding()]
-    param (
-        [Parameter()]
-        [ValidateNotNullOrEmpty()]
-        [string]$DisplayName
-    )
-
-    # old way
-    # get-wmiobject Win32_Product | Format-Table IdentifyingNumber, Name | Out-String -stream
-    $UninstallKeys = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall", "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
-    $null = New-PSDrive -Name HKU -PSProvider Registry -Root Registry::HKEY_USERS
-    foreach ($UninstallKey in $UninstallKeys) {
-        if ($PSBoundParameters.ContainsKey('DisplayName')) {
-            $WhereBlock = { ($_.PSChildName -match '^{[A-Z0-9]{8}-([A-Z0-9]{4}-){3}[A-Z0-9]{12}}$') -and ($_.GetValue('DisplayName') -like "*$DisplayName*") }
-        }
-        else {
-            $WhereBlock = { ($_.PSChildName -match '^{[A-Z0-9]{8}-([A-Z0-9]{4}-){3}[A-Z0-9]{12}}$') -and ($_.GetValue('DisplayName')) }
-        }
-        $gciParams = @{
-            Path        = $UninstallKey
-            ErrorAction = 'SilentlyContinue'
-        }
-        $selectProperties = @(
-            @{n = 'GUID'; e = {$_.PSChildName}},
-            @{n = 'Name'; e = {$_.GetValue('DisplayName')}}
-        )
-        Get-ChildItem @gciParams | Where-Object $WhereBlock | Select-Object -Property $selectProperties
-    }
 }
 
 <# $File = "C:\Users\$env:UserName\AppData\Roaming\Jabra Direct\Devices.txt"
@@ -202,14 +114,14 @@ If ( Test-Path -Path $File ){
 But research the best way to use "preferences" and debug
 workflows.
 #>
-$PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
+<# $PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
 Push-Location "$PSRoot\WindowsPowerShell"
 "preferences","debug" |
   Where-Object {Test-Path "Microsoft.PowerShell_$_.ps1"} |
   ForEach-Object -process {
     Invoke-Expression ". .\Microsoft.PowerShell_$_.ps1"
 }
-
+ #>
 <# #consuming json
 $json = Join-Path -Path $PSDirectory -ChildPath "Microsoft.PowerShell_options.json"
 if ( Test-Path -path $json ) {
