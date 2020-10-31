@@ -10,11 +10,11 @@ Modules/*
 !Modules/orgComputer
 !Modules/orgGroup
 !Modules/orgGroupMember
-!Modules/orgPassword
 !Modules/orgTitle
 !Modules/orgUser
 !Modules/orgUserExpiry
 !Modules/orgUserPasswordExpiry
+!Modules/Password
 !Modules/ToshibaWarranty
 !init.ps1
 !Microsoft.PowerShell.code-workspace
