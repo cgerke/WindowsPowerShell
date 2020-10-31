@@ -8,7 +8,6 @@ Modules/*
 !Modules/ActiveDirectoryTools
 !Modules/ComputerTools
 !Modules/FileSystemTools
-!Modules/ToshibaWarranty
 !init.ps1
 !Microsoft.PowerShell.code-workspace
 !Microsoft.VSCode_profile.ps1
