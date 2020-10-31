@@ -5,10 +5,12 @@
 !CascadiaCode/*
 !Modules/
 Modules/*
+!Modules/ActiveDirectoryTools
 !Modules/Computer
+!Modules/ComputerTools
 !Modules/FileSystem
+!Modules/FileSystemTools
 !Modules/orgAD
-!Modules/orgComputer
 !Modules/Password
 !Modules/ToshibaWarranty
 !init.ps1
