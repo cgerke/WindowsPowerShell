@@ -5,15 +5,10 @@
 !CascadiaCode/*
 !Modules/
 Modules/*
+!Modules/Computer
 !Modules/FileSystem
 !Modules/orgAD
 !Modules/orgComputer
-!Modules/orgGroup
-!Modules/orgGroupMember
-!Modules/orgTitle
-!Modules/orgUser
-!Modules/orgUserExpiry
-!Modules/orgUserPasswordExpiry
 !Modules/Password
 !Modules/ToshibaWarranty
 !init.ps1
