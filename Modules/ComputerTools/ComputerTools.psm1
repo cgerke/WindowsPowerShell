@@ -40,31 +40,31 @@
       default { $Build = "N/A" }
     }
 
-    $CIMcs = Get-CimInstance -CimSession $CimSession -ClassName Win32_ComputerSystem
-    $CIMos = Get-CimInstance -CimSession $CimSession -ClassName Win32_OperatingSystem
+    $CIMcomsys = Get-CimInstance -CimSession $CimSession -ClassName Win32_ComputerSystem
+    $CIMopsys = Get-CimInstance -CimSession $CimSession -ClassName Win32_OperatingSystem
     $CIMbios = Get-CimInstance -CimSession $CimSession -ClassName Win32_Bios
     $CIMcpu = Get-CimInstance -CimSession $CimSession -ClassName Win32_Processor
     $CIMdisk = Get-CimInstance -CimSession $CimSession -ClassName Win32_LogicalDisk -Filter "DeviceID='C:'"
     $TotalDiskSpace = [math]::round($CIMdisk.Size / 1GB, 0)
     $FreeDiskSpace = [math]::round($CIMdisk.FreeSpace / 1GB, 0)
 
-    $ComputerCO = [PSCustomObject]@{
+    $ComputerObject = [PSCustomObject]@{
       Name = $Computer
-      Manufacturer = $CIMcs.Manufacturer
-      Model = $CIMcs.Model
+      Manufacturer = $CIMcomsys.Manufacturer
+      Model = $CIMcomsys.Model
       Serial = $CIMbios.SerialNumber
       CPU = $CIMcpu.Name
       TotalDiskSpace = "$TotalDiskSpace GB"
       FreeDiskSpace = "$FreeDiskSpace GB"
-      TotalPhysicalMemory = "$([math]::round($CIMos.TotalVisibleMemorySize / 1MB, 0)) GB"
-      FreePhysicalMemory = "$([math]::round($CIMos.FreePhysicalMemory/ 1MB, 0)) GB"
-      LastBootUpTime = $CIMos.LastBootUpTime
-      OperatingSystem = $CIMos.caption
+      TotalPhysicalMemory = "$([math]::round($CIMopsys.TotalVisibleMemorySize / 1MB, 0)) GB"
+      FreePhysicalMemory = "$([math]::round($CIMopsys.FreePhysicalMemory/ 1MB, 0)) GB"
+      LastBootUpTime = $CIMopsys.LastBootUpTime
+      OperatingSystem = $CIMopsys.caption
       Build = $Build
-      InstallDate = $CIMos.InstallDate
+      InstallDate = $CIMopsys.InstallDate
     }
 
-    $ComputerCO
+    $ComputerObject
 
     # Updates
     Get-CimInstance -CimSession $CimSession -ClassName Win32_QuickFixEngineering |
@@ -111,13 +111,13 @@ function Get-ComputerUptime
         $CimSession = New-CimSession -ComputerName $i -SessionOption $CimSessionOption
       }
 
-      $CIMos = Get-CimInstance -CimSession $CimSession -ClassName Win32_OperatingSystem
-      $ComputerCO = [PSCustomObject]@{
+      $CIMopsys = Get-CimInstance -CimSession $CimSession -ClassName Win32_OperatingSystem
+      $ComputerObject = [PSCustomObject]@{
         Name = $i
-        LastBootUpTime = $CIMos.LastBootUpTime
-        LastBootUpTimeRelative = (Get-Date) - $CIMos.LastBootUpTime  | Format-TimeSpan
+        LastBootUpTime = $CIMopsys.LastBootUpTime
+        LastBootUpTimeRelative = (Get-Date) - $CIMopsys.LastBootUpTime  | Format-TimeSpan
       }
-      return $ComputerCO
+      return $ComputerObject
     }
   }
 
