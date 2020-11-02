@@ -15,64 +15,63 @@
 
   if (-not (Test-Connection -Quiet -ComputerName "$Computer" -Count 2))
   {
-    Write-Information "$Computer appears to be offline"
-    exit(1);
+    Write-Information "$Computer appears to be offline" -InformationAction Continue
+  } else {
+    ### WinRM remoting by default
+    ### Enable-PSRemoting -SkipNetworkProfileCheck -Force
+    If (Test-WSMan -ComputerName $Computer -ErrorAction SilentlyContinue)
+    {
+      Write-Information "WinRM available" -InformationAction Continue
+      $CimSession = New-CimSession -ComputerName $Computer
+    }
+    Else
+    {
+      Write-Information "Using DCOM as WinRM is not available" -InformationAction Continue
+      $CimSessionOption = New-CimSessionOption -Protocol "DCOM"
+      $CimSession = New-CimSession -ComputerName $Computer -SessionOption $CimSessionOption
+    }
+
+    switch ((Get-CimInstance -CimSession $CimSession -ClassName Win32_OperatingSystem).Version)
+    {
+      10.0.18362 { $Build = 1903 }
+      10.0.17763 { $Build = 1809 }
+      10.0.17134 { $Build = 1803 }
+      10.0.16299 { $Build = 1709 }
+      default { $Build = "N/A" }
+    }
+
+    $CIMcs = Get-CimInstance -CimSession $CimSession -ClassName Win32_ComputerSystem
+    $CIMos = Get-CimInstance -CimSession $CimSession -ClassName Win32_OperatingSystem
+    $CIMbios = Get-CimInstance -CimSession $CimSession -ClassName Win32_Bios
+    $CIMcpu = Get-CimInstance -CimSession $CimSession -ClassName Win32_Processor
+    $CIMdisk = Get-CimInstance -CimSession $CimSession -ClassName Win32_LogicalDisk -Filter "DeviceID='C:'"
+    $TotalDiskSpace = [math]::round($CIMdisk.Size / 1GB, 0)
+    $FreeDiskSpace = [math]::round($CIMdisk.FreeSpace / 1GB, 0)
+
+    $ComputerCO = [PSCustomObject]@{
+      Name = $Computer
+      Manufacturer = $CIMcs.Manufacturer
+      Model = $CIMcs.Model
+      Serial = $CIMbios.SerialNumber
+      CPU = $CIMcpu.Name
+      TotalDiskSpace = "$TotalDiskSpace GB"
+      FreeDiskSpace = "$FreeDiskSpace GB"
+      TotalPhysicalMemory = "$([math]::round($CIMos.TotalVisibleMemorySize / 1MB, 0)) GB"
+      FreePhysicalMemory = "$([math]::round($CIMos.FreePhysicalMemory/ 1MB, 0)) GB"
+      LastBootUpTime = $CIMos.LastBootUpTime
+      OperatingSystem = $CIMos.caption
+      Build = $Build
+      InstallDate = $CIMos.InstallDate
+    }
+
+    $ComputerCO
+
+    # Updates
+    Get-CimInstance -CimSession $CimSession -ClassName Win32_QuickFixEngineering |
+    Select-Object Description, HotFixID, InstalledOn |
+    Sort-Object -Descending -Property InstalledOn |
+    Format-Table
   }
-
-  ### WinRM remoting by default
-  ### Enable-PSRemoting -SkipNetworkProfileCheck -Force
-  If (Test-WSMan -ComputerName $Computer -ErrorAction SilentlyContinue)
-  {
-    Write-Information "WinRM available"
-    $CimSession = New-CimSession -ComputerName $Computer
-  }
-  Else
-  {
-    Write-Information "Use DCOM if WinRM is not available"
-    $CimSessionOption = New-CimSessionOption -Protocol "DCOM"
-    $CimSession = New-CimSession -ComputerName $Computer -SessionOption $CimSessionOption
-  }
-
-  switch ((Get-CimInstance -CimSession $CimSession -ClassName Win32_OperatingSystem).Version)
-  {
-    10.0.18362 { $Build = 1903 }
-    10.0.17763 { $Build = 1809 }
-    10.0.17134 { $Build = 1803 }
-    10.0.16299 { $Build = 1709 }
-    default { $Build = "N/A" }
-  }
-
-  $CIMcs = Get-CimInstance -CimSession $CimSession -ClassName Win32_ComputerSystem
-  $CIMos = Get-CimInstance -CimSession $CimSession -ClassName Win32_OperatingSystem
-  $CIMbios = Get-CimInstance -CimSession $CimSession -ClassName Win32_Bios
-  $CIMcpu = Get-CimInstance -CimSession $CimSession -ClassName Win32_Processor
-  $CIMdisk = Get-CimInstance -CimSession $CimSession -ClassName Win32_LogicalDisk -Filter "DeviceID='C:'"
-  $TotalDiskSpace = [math]::round($CIMdisk.Size / 1GB, 0)
-  $FreeDiskSpace = [math]::round($CIMdisk.FreeSpace / 1GB, 0)
-
-  $ComputerCO = [PSCustomObject]@{
-    Name = $Computer
-    Manufacturer = $CIMcs.Manufacturer
-    Model = $CIMcs.Model
-    Serial = $CIMbios.SerialNumber
-    CPU = $CIMcpu.Name
-    TotalDiskSpace = "$TotalDiskSpace GB"
-    FreeDiskSpace = "$FreeDiskSpace GB"
-    TotalPhysicalMemory = "$([math]::round($CIMos.TotalVisibleMemorySize / 1MB, 0)) GB"
-    FreePhysicalMemory = "$([math]::round($CIMos.FreePhysicalMemory/ 1MB, 0)) GB"
-    LastBootUpTime = $CIMos.LastBootUpTime
-    OperatingSystem = $CIMos.caption
-    Build = $Build
-    InstallDate = $CIMos.InstallDate
-  }
-
-  $ComputerCO
-
-  # Updates
-  Get-CimInstance -CimSession $CimSession -ClassName Win32_QuickFixEngineering |
-  Select-Object Description, HotFixID, InstalledOn |
-  Sort-Object -Descending -Property InstalledOn |
-  Format-Table
 }
 
 function Format-TimeSpan {
