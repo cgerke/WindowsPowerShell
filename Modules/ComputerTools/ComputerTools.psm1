@@ -13,15 +13,22 @@
     [string] $Computer
   )
 
+  if (-not (Test-Connection -Quiet -ComputerName "$Computer" -Count 2))
+  {
+    Write-Error "$Computer appears to be offline"
+    exit(1);
+  }
+
   ### WinRM remoting by default
   ### Enable-PSRemoting -SkipNetworkProfileCheck -Force
   If (Test-WSMan -ComputerName $Computer -ErrorAction SilentlyContinue)
   {
+    Write-Information "WinRM available"
     $CimSession = New-CimSession -ComputerName $Computer
   }
   Else
   {
-    # Use DCOM if WinRM is not available
+    Write-Information "Use DCOM if WinRM is not available"
     $CimSessionOption = New-CimSessionOption -Protocol "DCOM"
     $CimSession = New-CimSession -ComputerName $Computer -SessionOption $CimSessionOption
   }
@@ -95,6 +102,7 @@ function Get-ComputerUptime
       ### Enable-PSRemoting -SkipNetworkProfileCheck -Force
       If (Test-WSMan -ComputerName $i -ErrorAction SilentlyContinue)
       {
+        Write-Information "WinRM available."
         $CimSession = New-CimSession -ComputerName $i
       }
       Else
