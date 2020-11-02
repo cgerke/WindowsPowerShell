@@ -15,7 +15,7 @@
 
   if (-not (Test-Connection -Quiet -ComputerName "$Computer" -Count 2))
   {
-    Write-Error "$Computer appears to be offline"
+    Write-Information "$Computer appears to be offline"
     exit(1);
   }
 
