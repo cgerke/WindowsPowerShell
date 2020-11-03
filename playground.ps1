@@ -130,3 +130,29 @@ if ( Test-Path -path $json ) {
     #$Defaults.AdminAccount[0].Username
 } #>
 
+$PatternSID = 'S-1-5-21-\d+-\d+\-\d+\-\d+$'
+$ProfileList = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*' |
+    Where-Object {$_.PSChildName -match $PatternSID} |
+    Select-Object  @{name="SID";expression={$_.PSChildName}},
+        @{name="UserHive";expression={"$($_.ProfileImagePath)\ntuser.dat"}},
+        @{name="Username";expression={$_.ProfileImagePath -replace '^(.*[\\\/])', ''}}
+
+Foreach ($UserProfile in $ProfileList) {
+    # Load User ntuser.dat if it's not already loaded
+    if ($UserProfile.Username -notmatch '^defaultuser0$|^.*administrator$|^.*mdt-build$') {
+        $UserProfile.Username
+        $UserProfile.SID
+        Set-ItemProperty -Path "HKU:\$UserProfile.SID\Software\VB and VBA Program Settings\STARLOGV4\Settings" -Name "USER_NAME" -Value "Dept Water 01"
+        Set-ItemProperty -Path "HKU:\$UserProfile.SID\Software\VB and VBA Program Settings\STARLOGV4\Settings" -Name "KEY" -Value "WZ358K3IHIERRCZV3YM7LH7NQ"
+    }
+}
+
+
+#WOL
+$Mac = "1A:2B:3C:4D:5E:6F"
+$MacByteArray = $Mac -split "[:-]" | ForEach-Object { [Byte] "0x$_"}
+[Byte[]] $MagicPacket = (,0xFF * 6) + ($MacByteArray  * 16)
+$UdpClient = New-Object System.Net.Sockets.UdpClient
+$UdpClient.Connect(([System.Net.IPAddress]::Broadcast),7)
+$UdpClient.Send($MagicPacket,$MagicPacket.Length)
+$UdpClient.Close()
