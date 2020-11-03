@@ -2,7 +2,7 @@
 !.gitattributes
 !.gitignore
 !.vscode
-!CascadiaCode/*
+!CascadiaCode
 !Modules/
 Modules/*
 !Modules/ActiveDirectoryTools
