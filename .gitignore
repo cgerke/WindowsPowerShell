@@ -13,5 +13,6 @@ Modules/*
 !Module.psm1
 !PlasterManifest.xml
 !PSScriptAnalyzerSettings.psd1
+!README.md
 !settings.json
 !test.ps1
