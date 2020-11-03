@@ -142,8 +142,6 @@ Foreach ($UserProfile in $ProfileList) {
     if ($UserProfile.Username -notmatch '^defaultuser0$|^.*administrator$|^.*mdt-build$') {
         $UserProfile.Username
         $UserProfile.SID
-        Set-ItemProperty -Path "HKU:\$UserProfile.SID\Software\VB and VBA Program Settings\STARLOGV4\Settings" -Name "USER_NAME" -Value "Dept Water 01"
-        Set-ItemProperty -Path "HKU:\$UserProfile.SID\Software\VB and VBA Program Settings\STARLOGV4\Settings" -Name "KEY" -Value "WZ358K3IHIERRCZV3YM7LH7NQ"
     }
 }
 
