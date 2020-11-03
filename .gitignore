@@ -12,6 +12,6 @@ Modules/*
 !Microsoft.VSCode_profile.ps1
 !Module.psm1
 !PlasterManifest.xml
-!playground.ps1
 !PSScriptAnalyzerSettings.psd1
 !settings.json
+!test.json
