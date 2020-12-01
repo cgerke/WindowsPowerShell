@@ -115,7 +115,7 @@ function Get-ComputerUptime
       $ComputerObject = [PSCustomObject]@{
         Name = $i
         LastBootUpTime = $CIMopsys.LastBootUpTime
-        LastBootUpTimeRelative = (Get-Date) - $CIMopsys.LastBootUpTime  | Format-TimeSpan
+        LastBootUpTimeRelative = (Get-Date) - $CIMopsys.LastBootUpTime | Format-TimeSpan
       }
       return $ComputerObject
     }
