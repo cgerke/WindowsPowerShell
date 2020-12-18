@@ -144,3 +144,64 @@ Function Get-ToshibaWarranty
   $warranty = $content.commonBean
   $warranty
 }
+
+Function Write-Log {
+  Param ([String]$LogString)
+  If (Test-Path $LogFile){
+      If ((Get-Item $LogFile).Length -Gt 2mb){
+          Rename-Item $LogFile ($LogFile + ".Bak") -Force
+          New-Item -Itemtype File -Force -Path $LogFile
+      }
+  }
+  (Get-Date -UFormat "%Y-%M-%D").Tostring() + " " + $LogString | Out-File -Filepath $LogFile -Append
+}
+
+function New-BackupUserProfile
+{
+  <#
+    .SYNOPSIS
+      Basic user profile backup
+    .DESCRIPTION
+      Backup "known" user profile data
+    .EXAMPLE
+      New-BackupUserProfile -Computer $hostname -User
+    #>
+  Param(
+    [Parameter(Position = 0, mandatory = $true)]
+    [string[]] $Computer,
+    [Parameter(Position = 1, mandatory = $true)]
+    [string[]] $User
+  )
+
+  $TimeString = Get-Date -format "yyyyMMdd-Hmmss"
+  $BackupPath = "C:\temp\$($Computer)_$($TimeString)"
+  $LogFileName = "$($Computer)_$($TimeString)"
+  $LogFile = "$BackupPath\$LogFileName.log"
+
+  New-Item -Itemtype Directory -Force -Path $BackupPath
+  New-Item -Itemtype File -Force -Path $LogFile
+
+  If (Test-Connection -Computername $Computer -Buffersize 16 -Count 1 -Ea 0 -Quiet)
+  {
+    "$Computer - Online!" | Tee-Object -FilePath "$LogFile" -Append
+  } Else {
+    "$Computer - Offline!" | Tee-Object -FilePath "$LogFile" -Append
+  }
+
+  $DesktopSource = Get-ChildItem "\\$Computer\C$\Users\$User\Downloads" -Directory -Recurse
+  $DesktopDestination = "$BackupPath\Desktop"
+  New-Item -Itemtype Directory -Force -Path $DesktopDestination
+
+  $count = $source.count
+  $operation = 0
+
+  foreach ($file in $DesktopSource)
+  {
+      $operation++
+      Write-host 'Copying File: ' $file  -foregroundcolor DarkGreen -backgroundcolor white
+      Write-Progress -Activity 'Copying data' -Status 'Progress' -PercentComplete ($operation/$count*100)
+      Copy-Item "\\$Computer\C$\Users\$User\Downloads\$file" -Destination $DesktopDestination -force
+  }
+
+
+}
