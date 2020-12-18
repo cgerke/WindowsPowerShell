@@ -189,19 +189,10 @@ function New-BackupUserProfile
   }
 
   $DesktopSource = Get-ChildItem "\\$Computer\C$\Users\$User\Downloads" -Directory -Recurse
-  $DesktopDestination = "$BackupPath\Desktop"
+  $DesktopDestination = "$BackupPath\Downloads\"
   New-Item -Itemtype Directory -Force -Path $DesktopDestination
 
-  $count = $source.count
-  $operation = 0
-
-  foreach ($file in $DesktopSource)
-  {
-      $operation++
-      Write-host 'Copying File: ' $file  -foregroundcolor DarkGreen -backgroundcolor white
-      Write-Progress -Activity 'Copying data' -Status 'Progress' -PercentComplete ($operation/$count*100)
-      Copy-Item "\\$Computer\C$\Users\$User\Downloads\$file" -Destination $DesktopDestination -force
-  }
+  Copy-Item "\\$Computer\C$\Users\$User\Downloads\$file" -Destination $DesktopDestination -force
 
 
 }
