@@ -45,6 +45,7 @@
     $CIMbios = Get-CimInstance -CimSession $CimSession -ClassName Win32_Bios
     $CIMcpu = Get-CimInstance -CimSession $CimSession -ClassName Win32_Processor
     $CIMdisk = Get-CimInstance -CimSession $CimSession -ClassName Win32_LogicalDisk -Filter "DeviceID='C:'"
+    $CIMmac = Get-CimInstance -CimSession $CimSession -ClassName Win32_NetworkAdapterConfiguration | Where-Object {$_.IPAddress -ne $null} | Select-Object MACAddress, IPAddress
     $TotalDiskSpace = [math]::round($CIMdisk.Size / 1GB, 0)
     $FreeDiskSpace = [math]::round($CIMdisk.FreeSpace / 1GB, 0)
 
@@ -58,6 +59,7 @@
       FreeDiskSpace = "$FreeDiskSpace GB"
       TotalPhysicalMemory = "$([math]::round($CIMopsys.TotalVisibleMemorySize / 1MB, 0)) GB"
       FreePhysicalMemory = "$([math]::round($CIMopsys.FreePhysicalMemory/ 1MB, 0)) GB"
+      MacAddress = $CIMmac.MacAddress
       LastBootUpTime = $CIMopsys.LastBootUpTime
       OperatingSystem = $CIMopsys.caption
       Build = $Build
