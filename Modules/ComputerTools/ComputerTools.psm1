@@ -45,7 +45,7 @@
     $CIMbios = Get-CimInstance -CimSession $CimSession -ClassName Win32_Bios
     $CIMcpu = Get-CimInstance -CimSession $CimSession -ClassName Win32_Processor
     $CIMdisk = Get-CimInstance -CimSession $CimSession -ClassName Win32_LogicalDisk -Filter "DeviceID='C:'"
-    $CIMmac = Get-CimInstance -CimSession $CimSession -ClassName Win32_NetworkAdapterConfiguration | Where-Object {$_.MACAddress -ne $null} | Select-Object Description, MACAddress
+    $CIMmac = Get-CimInstance -CimSession $CimSession -ClassName Win32_NetworkAdapterConfiguration | Where-Object {$null -ne $_.MACAddress} | Select-Object Description, MACAddress
     $TotalDiskSpace = [math]::round($CIMdisk.Size / 1GB, 0)
     $FreeDiskSpace = [math]::round($CIMdisk.FreeSpace / 1GB, 0)
 
@@ -83,7 +83,7 @@ function Format-TimeSpan {
   }
 }
 
-function Get-ComputerMacAddresses
+function Get-MacAddress
 {
   <#
     .SYNOPSIS
@@ -91,7 +91,7 @@ function Get-ComputerMacAddresses
     .DESCRIPTION
       Retrieve system mac addresses from a remote computer.
     .EXAMPLE
-      Get-ComputerMacAddresses-Computer $hostname
+      Get-MacAddress -Computer $hostname
     #>
   Param(
     [Parameter(Position = 0, mandatory = $true, ValueFromPipeline = $true)]
@@ -115,7 +115,7 @@ function Get-ComputerMacAddresses
       }
 
 
-      $CIMmac = Get-CimInstance -CimSession $CimSession -ClassName Win32_NetworkAdapterConfiguration | Where-Object {$_.MACAddress -ne $null} | Select-Object Description, MACAddress
+      $CIMmac = Get-CimInstance -CimSession $CimSession -ClassName Win32_NetworkAdapterConfiguration | Where-Object {$null -ne $_.MACAddress} | Select-Object Description, MACAddress
 
       return $CIMmac
     }
@@ -235,7 +235,7 @@ function New-BackupUserProfile
   $DesktopDestination = "$BackupPath\Downloads\"
   New-Item -Itemtype Directory -Force -Path $DesktopDestination
 
-  Copy-Item "\\$Computer\C$\Users\$User\Downloads\$file" -Destination $DesktopDestination -force
+  Copy-Item "$DesktopSource" -Destination $DesktopDestination -force
 
 
 }
