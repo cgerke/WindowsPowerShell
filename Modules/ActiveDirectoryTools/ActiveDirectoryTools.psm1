@@ -228,9 +228,9 @@ function Get-RandomChar($length, $characters)
 
 function Get-Password
 {
-  $password = Get-RandomChar -length 5 -characters 'abcdefghiklmnoprstuvwxyz'
-  $password += Get-RandomChar -length 1 -characters 'ABCDEFGHKLMNOPRSTUVWXYZ'
-  $password += Get-RandomChar -length 1 -characters '1234567890'
+  $password = Get-RandomChar -length 5 -characters 'abcdefghikmnprstuvwxyz'
+  $password += Get-RandomChar -length 1 -characters 'ABCDEFGHKMNPRSTUVWXYZ'
+  $password += Get-RandomChar -length 1 -characters '23456789'
   $password += Get-RandomChar -length 1 -characters '!$%=?#*'
   $password
 }
