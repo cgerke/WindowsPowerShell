@@ -231,6 +231,6 @@ function Get-Password
   #>
   $password = -join ((97..122) | Get-Random -Count 5 | ForEach-Object {[char]$_}) #ASCII lower case
   $password += -join ((65..90) | Get-Random -Count 1 | ForEach-Object {[char]$_}) #ASCII upper case
-  $password += -join ((1..9) | Get-Random -Count 1) + "#" #Integer + #
+  $password += -join ((1..9) | Get-Random -Count 1) + "*" #Integer + *
   return $password
 }
