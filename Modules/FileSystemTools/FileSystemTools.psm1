@@ -59,11 +59,11 @@ Function Set-FileTime
   )
 
   Get-ChildItem -Path "$Path" |
-
-  ForEach-Object {
-    $_.CreationTime = $date
-    $_.LastWriteTime = $date
-  }
+    ForEach-Object {
+      $_.CreationTime = $date
+      $_.LastWriteTime = $date
+    }
+    $date
 }
 
 function Copy-WithRobocopy
