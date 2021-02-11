@@ -31,11 +31,13 @@ Remove-Item -Path $Profile -Force -ErrorAction SilentlyContinue
 }
 
 # Winget
-Add-AppxPackage -Path .\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle
+$appinstaller =$(Get-AppxPackage -Name "Microsoft.DesktopAppInstaller" | Where-Object {$_.PackageFullName -like "*Microsoft.DesktopAppInstaller_1.11.10191.0_x64__8wekyb3d8bbwe*"})
+If (-not ($appinstaller)){
+  Add-AppxPackage -Path "$PWShell\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
+}
+
 $winget = $(& winget --version)
-If ( $winget ) {
-  "We can continue."
-} Else {
+If (-not ($winget)) {
   Exit 1
 }
 
