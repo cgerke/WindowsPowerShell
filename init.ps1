@@ -5,6 +5,12 @@
   Invoke-Expression $(Invoke-WebRequest https://raw.githubusercontent.com/cgerke/WindowsPowerShell/master/install.ps1)
 #>
 
+# Paths
+New-Item -Path $Profile -Type File
+$PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
+$PWShell = "$PSRoot\WindowsPowerShell"
+Remove-Item -Path $Profile -Force -ErrorAction SilentlyContinue
+
 # Repositories
 "PSGallery" | ForEach-Object -process {
   if (-not (Get-PSRepository -Name "$_")) {
@@ -40,11 +46,7 @@ If (-not ($git)) {
 }
 
 # Fetch REPO
-New-Item -Path $Profile -Type File
-$PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
-$PWShell = "$PSRoot\WindowsPowerShell"
 Remove-Item -Path "$PWShell\.git" -Recurse -Force -ErrorAction SilentlyContinue
-Remove-Item -Path $Profile -Force -ErrorAction SilentlyContinue
 
 <# TODO Need to investigate this further, why does this environment var
 cause git init to fail? Should I just (temporarily remove HOMEPATH)
