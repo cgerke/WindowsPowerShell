@@ -73,7 +73,17 @@ New-TemporaryFile | ForEach-Object {
   [System.Windows.Forms.SendKeys]::SendWait("%n{ENTER}")
 }
 
+# Windows Terminal
+
+#C:\Users\user\AppData\Local\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState
+
 # Windows Terminal Powerline Font
-if (-not (Test-Path "$PWShell\CascadiaCode\ttf\CascadiaCodePL.ttf")){
-  Copy-Item -Path "$PWShell\CascadiaCode\ttf\CascadiaCodePL.ttf" "$env:WINDIR\Fonts\"
+if (-not (Test-Path "$env:LOCALAPPDATA\Microsoft\Windows\Fonts\CascadiaCodePL.ttf")){
+  Copy-Item -Path "$PWShell\CascadiaCode\ttf\CascadiaCodePL.ttf" "$env:LOCALAPPDATA\Microsoft\Windows\Fonts\CascadiaCodePL.ttf"
+}
+
+# VSCode
+$vscode = $(Get-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*  | Where-Object {$_.DisplayName -like "*Microsoft Visual Studio Code *"})
+If (-not ($vscode)) {
+  Start-Process "winget" -ArgumentList "install --id Microsoft.VisualStudioCode-User-x64 --silent" -Wait -NoNewWindow
 }
