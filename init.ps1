@@ -31,7 +31,7 @@ Remove-Item -Path $Profile -Force -ErrorAction SilentlyContinue
 }
 
 # Winget
-$appinstaller =$(Get-AppxPackage -Name "Microsoft.DesktopAppInstaller" | Where-Object {$_.PackageFullName -like "*Microsoft.DesktopAppInstaller_1.11.10191.0_x64__8wekyb3d8bbwe*"})
+$appinstaller = $(Get-AppxPackage -Name "Microsoft.DesktopAppInstaller")
 If (-not ($appinstaller)){
   Add-AppxPackage -Path "$PWShell\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
 }
@@ -74,8 +74,11 @@ New-TemporaryFile | ForEach-Object {
 }
 
 # Windows Terminal
-
-#C:\Users\user\AppData\Local\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState
+$wt = $(Get-AppxPackage -Name "Microsoft.WindowsTerminal")
+If (-not ($wt)) {
+  Start-Process "winget" -ArgumentList "install --id Microsoft.WindowsTerminal --silent" -Wait -NoNewWindow
+  Copy-Item -Path "$PWShell\settings.json" "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
+}
 
 # Windows Terminal Powerline Font
 if (-not (Test-Path "$env:LOCALAPPDATA\Microsoft\Windows\Fonts\CascadiaCodePL.ttf")){
@@ -83,7 +86,7 @@ if (-not (Test-Path "$env:LOCALAPPDATA\Microsoft\Windows\Fonts\CascadiaCodePL.tt
 }
 
 # VSCode
-$vscode = $(Get-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*  | Where-Object {$_.DisplayName -like "*Microsoft Visual Studio Code *"})
+$vscode = $(Get-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object {$_.DisplayName -like "*Microsoft Visual Studio Code*"})
 If (-not ($vscode)) {
   Start-Process "winget" -ArgumentList "install --id Microsoft.VisualStudioCode-User-x64 --silent" -Wait -NoNewWindow
 }
