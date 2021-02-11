@@ -24,6 +24,15 @@
   }
 }
 
+# Winget
+Add-AppxPackage -Path .\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle
+$winget = $(& winget --version)
+If ( $winget ) {
+  "We can continue."
+} Else {
+  Exit 1
+}
+
 # Git
 $git = $(Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*  | Where-Object {$_.DisplayName -like "*Git*"})
 If (-not ($git)) {
