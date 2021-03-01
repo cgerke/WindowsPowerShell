@@ -1,4 +1,5 @@
-PS1='\[\033]0;$TITLEPREFIX:\W\007\]' # set window title
+#PS1='\[\033]0;$TITLEPREFIX:\W\007\]' # set window title
+PS1='\[\033]0;Bash Prompt (Git for Windows) =>\W\007\]' # set window title
 PS1="$PS1"'\n'                 # new line
 PS1="$PS1"'\[\033[32m\]'       # change to green
 PS1="$PS1"'git@local '         # user@host<space>
@@ -23,3 +24,35 @@ fi
 PS1="$PS1"'\[\033[0m\]'        # change color
 PS1="$PS1"'\n'                 # new line
 PS1="$PS1"'$ '                 # prompt: always $
+
+__git_ps1_colorize_gitstring ()
+{
+    if [[ -n ${ZSH_VERSION-} ]]; then
+        local c_red='%F{red}'
+        local c_green='%F{green}'
+        local c_clear='%f'
+    else
+        local c_red='\[\e[31m\]'
+        local c_green='\[\e[32m\]'
+        local c_clear='\[\e[0m\]'
+    fi
+
+    local branch_color=""
+    if [ "$w" = "*" ]; then  # modified
+        branch_color="$c_red"
+    elif  [ -n "$u" ]; then  # untracked
+        branch_color="$c_red"
+    elif [ -n "$i" ]; then
+        branch_color="$c_green"
+    else
+        branch_color="$c_clear"
+    fi
+
+    c="$branch_color$c"
+    z="$c_clear$z"
+    w=""
+    i=""
+    s=""
+    u=""
+    r="$c_clear$r"
+}
