@@ -1,6 +1,8 @@
 /*
+!.bashrc
 !.gitattributes
 !.gitignore
+!git-prompt.sh
 !.vscode
 !CascadiaCode
 !Modules/

@@ -43,6 +43,13 @@
                 "hidden": false
             },
             {
+                "guid": "{cmg00000-0000-0000-0000-000000000000}",
+                "name": "Git-Bash",
+                "commandline": "%PROGRAMFILES%\\Git\\bin\\bash.exe",
+                "icon": "%PROGRAMFILES%\\Git\\mingw64\\share\\git\\git-for-windows.ico",
+                "startingDirectory" : "~"
+            },
+            {
                 // Make changes here to the cmd.exe profile.
                 "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
                 "name": "Command Prompt",
