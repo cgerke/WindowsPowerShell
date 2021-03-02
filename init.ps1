@@ -84,8 +84,8 @@ New-TemporaryFile | ForEach-Object {
 $wt = $(Get-AppxPackage -Name "Microsoft.WindowsTerminal")
 If (-not ($wt)) {
   Start-Process "winget" -ArgumentList "install --id Microsoft.WindowsTerminal --silent" -Wait -NoNewWindow
-  Copy-Item -Path "$PWShell\settings.json" "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
 }
+Copy-Item -Path "$PWShell\settings.json" "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
 
 # Windows Terminal Powerline Font
 if (-not (Test-Path "$env:LOCALAPPDATA\Microsoft\Windows\Fonts\CascadiaCodePL.ttf")){
