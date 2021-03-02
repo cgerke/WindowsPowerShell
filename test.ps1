@@ -56,10 +56,6 @@ function Set-Repository {
   Find-Module -Repository 'MyRepo' -Verbose
 }
 
-function Get-Sandbox {
- Enable-WindowsOptionalFeature -FeatureName "Containers-DisposableClientVM" -All -Online
-}
-
 ${function:~} = { Set-Location ~ }
 ${function:Get-Fun} = { Get-ChildItem function:\ | select-String "-" | ForEach-Object { Get-Help $_ } | Format-Table -Property Name, Synopsis }
 ${function:Reload-Powershell} = { & $profile }
