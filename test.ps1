@@ -1,5 +1,8 @@
 exit
 
+#Generate high cpu
+$x = 1; foreach ($n in 1..2147483647) {$x = $x * $n};
+
 <#
 .SYNOPSIS
    Creates firewall rules for Teams.
@@ -186,7 +189,7 @@ Foreach ($UserProfile in $ProfileList) {
 
 
 #WOL
-$Mac = "1A:2B:3C:4D:5E:6F"
+$Mac = ""
 $MacByteArray = $Mac -split "[:-]" | ForEach-Object { [Byte] "0x$_"}
 [Byte[]] $MagicPacket = (,0xFF * 6) + ($MacByteArray  * 16)
 $UdpClient = New-Object System.Net.Sockets.UdpClient
