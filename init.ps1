@@ -47,12 +47,12 @@ If (-not ($git)) {
   Start-Process "winget" -ArgumentList "install --id Git.Git --silent" -Wait -NoNewWindow
 }
 
-if (-not (Test-Path "$env:HOMEPATH\.bashrc")){
+#if (-not (Test-Path "$env:HOMEPATH\.bashrc")){
   New-Item -Path "$env:HOMEPATH\.config" -ItemType Directory -Force -Verbose
   New-Item -Path "$env:HOMEPATH\.config\git" -ItemType Directory -Force -Verbose
   Copy-Item -Path "$PWShell\git-prompt.sh" "$env:HOMEPATH\.config\git\git-prompt.sh"
   Copy-Item -Path "$PWShell\.bashrc" "$env:HOMEPATH\.bashrc"
-}
+#}
 
 # Fetch REPO
 Remove-Item -Path "$PWShell\.git" -Recurse -Force -ErrorAction SilentlyContinue
