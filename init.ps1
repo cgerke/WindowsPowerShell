@@ -5,6 +5,26 @@
   Invoke-Expression $(Invoke-WebRequest https://raw.githubusercontent.com/cgerke/WindowsPowerShell/master/install.ps1)
 #>
 
+# SSH
+Start-Process -FilePath powershell.exe -ArgumentList {
+  -noprofile
+  Set-ItemProperty "REGISTRY::HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU" UseWUserver -value 0
+  Get-WindowsCapability -Name 'OpenSSH.Client*' -Online | Where-Object state -ne 'Installed' | Add-WindowsCapability -Online
+  Set-ItemProperty "REGISTRY::HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU" UseWUserver -value 1
+} -verb RunAs
+
+# Telnet
+Start-Process -FilePath powershell.exe -ArgumentList {
+  -noprofile
+  Get-WindowsOptionalFeature -Online -FeatureName "TelnetClient" | Where-Object state -ne 'Installed' | Enable-WindowsOptionalFeature -Online -FeatureName "TelnetClient"
+} -verb RunAs
+
+# Sandbox
+Start-Process -FilePath powershell.exe -ArgumentList {
+  -noprofile
+  Get-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" | Where-Object state -ne 'Installed' | Enable-WindowsOptionalFeature -FeatureName "Containers-DisposableClientVM" -All -Online
+} -verb RunAs
+
 # Paths
 New-Item -Path $Profile -Type File
 $PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent

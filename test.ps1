@@ -60,18 +60,6 @@ function Get-Sandbox {
  Enable-WindowsOptionalFeature -FeatureName "Containers-DisposableClientVM" -All -Online
 }
 
-function Get-Ssh {
- Get-WindowsCapability -Online | Where-Object Name -like "OpenSSH.Client*" | Add-WindowsCapability -Online
-}
-
-function Get-Telnet {
- Start-Process -FilePath powershell.exe -ArgumentList {
-     -noprofile
-     Get-WindowsOptionalFeature -Online -FeatureName "TelnetClient"
-     Enable-WindowsOptionalFeature -Online -FeatureName "TelnetClient"
- } -verb RunAs
-}
-
 ${function:~} = { Set-Location ~ }
 ${function:Get-Fun} = { Get-ChildItem function:\ | select-String "-" | ForEach-Object { Get-Help $_ } | Format-Table -Property Name, Synopsis }
 ${function:Reload-Powershell} = { & $profile }
