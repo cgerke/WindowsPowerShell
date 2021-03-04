@@ -15,7 +15,48 @@ $x = 1; foreach ($n in 1..2147483647) {$x = $x * $n};
 
 #Requires -Version 3
 
-$users = Get-ChildItem (Join-Path -Path $env:SystemDrive -ChildPath 'Users') -Exclude 'Public', 'ADMINI~*', 'Administrator', 'defaultuser0', 'mdt-build'
+# APPDATA LOOP
+$users = Get-ChildItem (Join-Path -Path $env:SystemDrive -ChildPath 'Users') -Exclude 'Public', 'ADMINI~*', 'Administrator'
+if ($null -ne $users) {
+    foreach ($user in $users) {
+        $progPath = Join-Path -Path $user.FullName -ChildPath "AppData\Local\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
+        if (Test-Path $progPath) {
+                "WT settings for user $($user.Name) $progPath"
+        }
+        Clear-Variable progPath
+    }
+}
+
+# Profile loop
+$Exclusions = "administrator","defaultuser0","all users","default user","default", "localservice","networkservice","public","myserviceaccount"
+$LastUsed = Get-WMIObject -Class Win32_UserProfile -Filter "special=False AND loaded=False" | Select-Object LocalPath,@{Name="LastUsed";Expression={$_.ConvertToDateTime($_.LastUseTime)}} | Where-Object {$_.LastUseTime -lt $(Get-Date).AddDays(60)}
+
+foreach ( $Profile in $LastUsed ) {
+
+    If ( $Exclusions -notcontains $Profile.LocalPath.Substring($Profile.LocalPath.lastindexofany("\") + 1, $Profile.LocalPath.Length - ($Profile.LocalPath.lastindexofany("\") + 1)) ) {
+        "{0} ..attempting deletion." -f $Profile.LocalPath
+        Get-CimInstance -Class Win32_UserProfile | Where-Object { $_.LocalPath -eq $Profile.LocalPath } | Remove-CimInstance
+    }
+}
+
+# Profile loop via registry
+$PatternSID = 'S-1-5-21-\d+-\d+\-\d+\-\d+$'
+$ProfileList = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*' |
+    Where-Object {$_.PSChildName -match $PatternSID} |
+    Select-Object  @{name="SID";expression={$_.PSChildName}},
+        @{name="UserHive";expression={"$($_.ProfileImagePath)\ntuser.dat"}},
+        @{name="Username";expression={$_.ProfileImagePath -replace '^(.*[\\\/])', ''}}
+
+Foreach ($UserProfile in $ProfileList) {
+    # Load User ntuser.dat if it's not already loaded
+    if ($UserProfile.Username -notmatch '^defaultuser0$|^.*administrator$') {
+        $UserProfile.Username
+        $UserProfile.SID
+    }
+}
+
+    #Firewall example
+    $users = Get-ChildItem (Join-Path -Path $env:SystemDrive -ChildPath 'Users') -Exclude 'Public', 'ADMINI~*', 'Administrator', 'defaultuser0', 'mdt-build'
 if ($null -ne $users) {
     foreach ($user in $users) {
         $progPath = Join-Path -Path $user.FullName -ChildPath "AppData\Local\Microsoft\Teams\Current\Teams.exe"
@@ -25,18 +66,6 @@ if ($null -ne $users) {
                 "UDP", "TCP" | ForEach-Object { New-NetFirewallRule -DisplayName $ruleName -Direction Inbound -Profile Domain -Program $progPath -Action Allow -Protocol $_ }
                 Clear-Variable ruleName
             }
-        }
-        Clear-Variable progPath
-    }
-}
-
-# APPDATA LOOP
-$users = Get-ChildItem (Join-Path -Path $env:SystemDrive -ChildPath 'Users') -Exclude 'Public', 'ADMINI~*', 'Administrator'
-if ($null -ne $users) {
-    foreach ($user in $users) {
-        $progPath = Join-Path -Path $user.FullName -ChildPath "AppData\Local\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
-        if (Test-Path $progPath) {
-                "WT settings for user $($user.Name) $progPath"
         }
         Clear-Variable progPath
     }
@@ -156,20 +185,7 @@ if ( Test-Path -path $json ) {
     #$Defaults.AdminAccount[0].Username
 } #>
 
-$PatternSID = 'S-1-5-21-\d+-\d+\-\d+\-\d+$'
-$ProfileList = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*' |
-    Where-Object {$_.PSChildName -match $PatternSID} |
-    Select-Object  @{name="SID";expression={$_.PSChildName}},
-        @{name="UserHive";expression={"$($_.ProfileImagePath)\ntuser.dat"}},
-        @{name="Username";expression={$_.ProfileImagePath -replace '^(.*[\\\/])', ''}}
 
-Foreach ($UserProfile in $ProfileList) {
-    # Load User ntuser.dat if it's not already loaded
-    if ($UserProfile.Username -notmatch '^defaultuser0$|^.*administrator$') {
-        $UserProfile.Username
-        $UserProfile.SID
-    }
-}
 
 
 #WOL
