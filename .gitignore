@@ -11,6 +11,7 @@ Modules/*
 !Modules/ComputerTools
 !Modules/FileSystemTools
 !Modules/macAddress
+!Modules/toshibaWarranty
 !Modules/upTime
 !init.ps1
 !Microsoft.PowerShell.code-workspace
