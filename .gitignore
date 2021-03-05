@@ -11,6 +11,7 @@ Modules/*
 !Modules/ComputerTools
 !Modules/FileSystemTools
 !Modules/macAddress
+!Modules/upTime
 !init.ps1
 !Microsoft.PowerShell.code-workspace
 !Microsoft.VSCode_profile.ps1
