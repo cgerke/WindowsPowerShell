@@ -185,8 +185,26 @@ if ( Test-Path -path $json ) {
     #$Defaults.AdminAccount[0].Username
 } #>
 
+<# Clean up hard drive space (profiles)
+$Exclusions = "administrator","defaultuser0", "all users","default user","default", "localservice","networkservice","public","myserviceaccount"
+$LastUsed = Get-WMIObject -Class Win32_UserProfile -Filter "special=False AND loaded=False" | Select-Object LocalPath,@{Name="LastUsed";Expression={$_.ConvertToDateTime($_.LastUseTime)}} | Where-Object {$_.LastUseTime -lt $(Get-Date).AddDays(30)}
 
+    foreach ( $Profile in $LastUsed ) {
 
+        If ( $Exclusions -notcontains $Profile.LocalPath.Substring($Profile.LocalPath.lastindexofany("\") + 1, $Profile.LocalPath.Length - ($Profile.LocalPath.lastindexofany("\") + 1)) ) {
+            "{0} ..attempting deletion." -f $Profile.LocalPath
+            Get-CimInstance -Class Win32_UserProfile | Where-Object { $_.LocalPath -eq $Profile.LocalPath } | Remove-CimInstance
+        }
+
+    }
+#>
+
+# Repair the store
+Get-AppXPackage *WindowsStore* -AllUsers | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+Get-Appxpackage –Allusers
+Microsoft.MPEG2VideoExtension_1.0.22661.0_x64__8wekyb3d8bbwe
+Add-AppxPackage -register "C:\Program Files\WindowsApps\Microsoft.MPEG2VideoExtension_1.0.22661.0_x64__8wekyb3d8bbwe" –DisableDevelopmentMode
+Get-AppxPackage -allusers Microsoft.WindowsStore | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 
 #WOL
 $Mac = ""
@@ -218,3 +236,267 @@ xcopy c:\WinPE_x86_PS\media\*.* /s /e /f d:\
 
 copype amd64 C:\WinPE_amd64_PS
 
+# Re-profile
+#1. Rename C:\Users\XXXXXXX.old
+#2. Rename HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsNT\CurrentVersion\ProfileList\S-1-5-21-xxxxxxxxxxxx.old
+#3. Rename HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\Current Version\ProfileGuid\{xxxxxxxxx}\S-1-5-21-xxxxxxxxxxxx.old
+#4. Reboot
+
+# plan b
+# /node:HOSTNAME process call create "msiexec /i C:\temp\installer.msi /qn"
+# /node:HOSTNAME process call create "MsiExec.exe /X{A728AD51-72D5-4992-8367-91E7CF686604}"
+# /node:HOSTNAME process call create "'C:\Program Files (x86)\xxxx\xxxx.exe' --something --somethingelse"
+# /node:HOSTNAME process list
+# /node:HOSTNAME process call create "wevtutil epl System C:\temp\system.evtx"
+
+# do not remember last logged in user
+# /node:HOSTNAME process call create "reg delete HKLM\Software\Microsoft\Windows\CurrentVersion\Authentication\LogonUI /v LastLoggedOnDisplayName /f"
+# /node:HOSTNAME process call create "reg delete HKLM\Software\Microsoft\Windows\CurrentVersion\Authentication\LogonUI /v LastLoggedOnSAMUser /f"
+# /node:HOSTNAME process call create "reg delete HKLM\Software\Microsoft\Windows\CurrentVersion\Authentication\LogonUI /v LastLoggedOnUser /f"
+# /node:HOSTNAME process call create "reg delete HKLM\Software\Microsoft\Windows\CurrentVersion\Authentication\LogonUI /v LastLoggedOnUserSID /f"
+
+# All BIOS
+Get-WmiObject -NameSpace "root\wmi" -Query "SELECT * FROM QueryBiosSettings"
+
+# Thunderbolt
+Get-WmiObject -NameSpace "root\wmi" -Query "SELECT * FROM QueryBiosSettings where InstanceName='ACPI\\PNP0C14\\0_73'"
+Get-WmiObject -NameSpace "root\wmi" -Query "SELECT * FROM QueryBiosSettings where InstanceName='ACPI\\PNP0C14\\0_74'"
+Get-WmiObject -NameSpace "root\wmi" -Query "SELECT * FROM QueryBiosSettings where InstanceName='ACPI\\PNP0C14\\0_75'"
+
+# Disable Outlook GPU acceleration
+REG ADD "HKCU\Software\Microsoft\Office\15.0\Common\Graphics" /V DisableHardwareAcceleration /T REG_DWORD /D 1 /F
+REG ADD "HKCU\Software\Microsoft\Office\16.0\Common\Graphics" /V DisableHardwareAcceleration /T REG_DWORD /D 1 /F
+REG ADD "HKCU\Software\Microsoft\Office\18.0\Common\Graphics" /V DisableHardwareAcceleration /T REG_DWORD /D 1 /F
+
+# Todo Calendar
+REG ADD "HKCU\Software\Microsoft\office\15.0\Outlook\Preferences" /V HideMailFavorites /T REG_DWORD /D 1 /F
+REG ADD "HKCU\Software\Microsoft\office\16.0\Outlook\Preferences" /V HideMailFavorites /T REG_DWORD /D 1 /F
+REG ADD "HKCU\Software\Microsoft\office\18.0\Outlook\Preferences" /V HideMailFavorites /T REG_DWORD /D 1 /F
+
+# Todo Calendar
+REG ADD "HKCU\Software\Microsoft\office\15.0\Outlook\Preferences" /V PinMail /T REG_DWORD /D 2 /F
+REG ADD "HKCU\Software\Microsoft\office\16.0\Outlook\Preferences" /V PinMail /T REG_DWORD /D 2 /F
+REG ADD "HKCU\Software\Microsoft\office\18.0\Outlook\Preferences" /V PinMail /T REG_DWORD /D 2 /F
+
+function Uninstall-App {
+    <#
+  .SYNOPSIS
+    Uninstall an app on a remote device.
+  .DESCRIPTION
+    Using wmi to uninstall an app using its GUID.
+  .EXAMPLE
+    Uninstall-App -App "{AC76BA86-7AD7-1033-7B44-AC0F074E4100}" -Computer "HOSTNAME"
+  #>
+  Param(
+    [Parameter(Position=0,mandatory=$true)]
+      [string] $app,
+      [Parameter(Position=0,mandatory=$true)]
+      [string] $computer
+  )
+      $startup=[wmiclass]"Win32_ProcessStartup"
+      $startup.Properties['ShowWindow'].value=$False
+
+      $app
+      $computer
+      #([wmiclass]"\\$computer\root\cimv2:win32_Process").create("msiexec.exe /x $app /qn",'C:\',$startup)
+
+      #(Get-WmiObject -Computer $computer -Class Win32_Product -Filter "Name='$app'").Uninstall()
+      #Invoke-WmiMethod -Path "Win32_Product.Name='Google Chrome'" -Computer 'HOSTNAME' -Name Uninstall
+  }
+
+  function Get-App {
+    <#
+    .SYNOPSIS
+      Wildcard search apps.
+    .DESCRIPTION
+      Find app GUID with a  wildcard search on a remote machine.
+    .EXAMPLE
+      Get-App -App "Google" -Computer "HOSTNAME"
+    #>
+      Param(
+        [Parameter(Position=0,mandatory=$true)]
+        [string] $app,$computer
+      )
+      #Get-WmiObject win32_product -ComputerName "$computer" | Where-Object name -Like "*$app*"
+
+      $app
+      $computer
+      # & wmic /node:"$computer" process call create 'powershell -command "Get-ChildItem -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | Out-File C:\temp\uninstall.txt"'
+      # & wmic /node:"$computer" process call create 'powershell -command "Get-ChildItem -Path HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall | Out-File C:\temp\uninstall.txt"'
+      # Get-Content "\\$computer\c$\temp\uninstall.txt"
+    }
+
+    function Get-InstalledApplications() {
+        [cmdletbinding(DefaultParameterSetName = 'GlobalAndAllUsers')]
+
+        Param (
+            [Parameter(ParameterSetName="Global")]
+            [switch]$Global,
+            [Parameter(ParameterSetName="GlobalAndCurrentUser")]
+            [switch]$GlobalAndCurrentUser,
+            [Parameter(ParameterSetName="GlobalAndAllUsers")]
+            [switch]$GlobalAndAllUsers,
+            [Parameter(ParameterSetName="CurrentUser")]
+            [switch]$CurrentUser,
+            [Parameter(ParameterSetName="AllUsers")]
+            [switch]$AllUsers
+        )
+
+        # Excplicitly set default param to True if used to allow conditionals to work
+        if ($PSCmdlet.ParameterSetName -eq "GlobalAndAllUsers") {
+            $GlobalAndAllUsers = $true
+        }
+
+        # Check if running with Administrative privileges if required
+        if ($GlobalAndAllUsers -or $AllUsers) {
+            $RunningAsAdmin = (New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+            if ($RunningAsAdmin -eq $false) {
+                Write-Error "Finding all user applications requires administrative privileges"
+                break
+            }
+        }
+
+        # Empty array to store applications
+        $Apps = @()
+        $32BitPath = "SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
+        $64BitPath = "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
+
+        # Retreive globally insatlled applications
+        if ($Global -or $GlobalAndAllUsers -or $GlobalAndCurrentUser) {
+            Write-Host "Processing global hive"
+            $Apps += Get-ItemProperty "HKLM:\$32BitPath"
+            $Apps += Get-ItemProperty "HKLM:\$64BitPath"
+        }
+
+        if ($CurrentUser -or $GlobalAndCurrentUser) {
+            Write-Host "Processing current user hive"
+            $Apps += Get-ItemProperty "Registry::\HKEY_CURRENT_USER\$32BitPath"
+            $Apps += Get-ItemProperty "Registry::\HKEY_CURRENT_USER\$64BitPath"
+        }
+
+        if ($AllUsers -or $GlobalAndAllUsers) {
+            Write-Host "Collecting hive data for all users"
+            $AllProfiles = Get-CimInstance Win32_UserProfile | Select LocalPath, SID, Loaded, Special | Where {$_.SID -like "S-1-5-21-*"}
+            $MountedProfiles = $AllProfiles | Where {$_.Loaded -eq $true}
+            $UnmountedProfiles = $AllProfiles | Where {$_.Loaded -eq $false}
+
+            Write-Host "Processing mounted hives"
+            $MountedProfiles | % {
+                $Apps += Get-ItemProperty -Path "Registry::\HKEY_USERS\$($_.SID)\$32BitPath"
+                $Apps += Get-ItemProperty -Path "Registry::\HKEY_USERS\$($_.SID)\$64BitPath"
+            }
+
+            Write-Host "Processing unmounted hives"
+            $UnmountedProfiles | % {
+
+                $Hive = "$($_.LocalPath)\NTUSER.DAT"
+                Write-Host " -> Mounting hive at $Hive"
+
+                if (Test-Path $Hive) {
+
+                    REG LOAD HKU\temp $Hive
+
+                    $Apps += Get-ItemProperty -Path "Registry::\HKEY_USERS\temp\$32BitPath"
+                    $Apps += Get-ItemProperty -Path "Registry::\HKEY_USERS\temp\$64BitPath"
+
+                    # Run manual GC to allow hive to be unmounted
+                    [GC]::Collect()
+                    [GC]::WaitForPendingFinalizers()
+
+                    REG UNLOAD HKU\temp
+
+                } else {
+                    Write-Warning "Unable to access registry hive at $Hive"
+                }
+            }
+        }
+
+        Write-Output $Apps
+    }
+
+    Get-InstalledApplications | Select DisplayName, InstallLocation
+
+
+    function Install-GoogleEarth {
+        <#
+      .SYNOPSIS
+        Installs GoogleEarthPro on a remote endpoint.
+      .DESCRIPTION
+        Using wmi to install GoogleEarthPro.
+      .EXAMPLE
+        Install-GoogleEarthPro "HOSTNAME"
+      #>
+      Param(
+        [Parameter(Position=0,mandatory=$true)]
+        [string] $computer
+      )
+
+        $installpath="temp\googleearthprowin-7.3.2-x64_automate.cmd"
+
+        If (Test-Path \\$computer\c$\$installpath){
+          $WinProc=[wmiclass]"Win32_ProcessStartup"
+          $WinProc.Properties['ShowWindow'].value=$False
+          ([wmiclass]"\\$computer\root\cimv2:win32_Process").create('cmd.exe /c C:\temp\googleearthprowin-7.3.2-x64_automate.cmd')
+        } Else {
+          Write-Host 'Install path googleearthprowin-7.3.2-x64_automate.cmd on the remote device is not available.'
+        }
+      }
+
+      $date = (Get-Date).ToString("yyyymmdd-hhmmss")
+      $file = "C:\temp\myfile.txt"
+      If (Test-Path -Path $file){
+        "zip backup to $file.$date"
+        try {
+          Compress-Archive -LiteralPath "$file" -DestinationPath "$file.zip"
+        } catch {
+          $_.Exception.GetType().FullName
+        }
+      } Else {
+        "Not here"
+      }
+
+      $file = "C:\temp\myfile.txt"
+      Get-ItemProperty $file | Get-Member
+
+
+      $FakeArray = @("johndoe", "admin-johndoe")
+      $MaxPasswordAge=(Get-ADDefaultDomainPasswordPolicy).MaxPasswordAge.Days
+      Foreach ($AdminAccount in $FakeArray) {
+        $PasswordLastSet=""
+        $PasswordExpires=""
+        If ($AdminAccount.StartsWith("admin-")) {
+          $ADUser = $AdminAccount.split('-')[-1]
+          $Mail = (Get-ADUser "$ADUser" -Properties mail).mail
+          $ADUser = $AdminAccount
+          $PasswordLastSet=(Get-ADUser $ADUser -Properties PasswordLastSet).PasswordLastSet
+          $PasswordExpires = $PasswordLastSet.AddDays($MaxPasswordAge)
+        }
+        Else {
+          $ADUser = $AdminAccount
+          $Mail = (Get-ADUser "$ADUser" -Properties mail).mail
+          $PasswordLastSet=(Get-ADUser $ADUser -Properties PasswordLastSet).PasswordLastSet
+          $PasswordExpires = $PasswordLastSet.AddDays($MaxPasswordAge)
+        }
+        "$ADUser at $Mail password LastSet : $PasswordLastSet due to expire $PasswordExpires"
+      }
+
+
+      function New-Compare {
+        <#
+        .SYNOPSIS
+          Tree comparison.
+        .DESCRIPTION
+          Compare the contents of two paths.
+        .EXAMPLE
+          New-Compare -Path C:\temp -Alt C:\temp1
+        #>
+        Param(
+          [Parameter(Position=0,mandatory=$true)]
+          [string] $Path,$Alt
+        )
+
+          $Ref = Get-ChildItem -Recurse -path "$Path"
+          $Diff = Get-ChildItem -Recurse -path "$Alt"
+          Compare-Object -ReferenceObject $Ref -DifferenceObject $Diff | ForEach-Object {$_.InputObject.FullName}
+
+        }
