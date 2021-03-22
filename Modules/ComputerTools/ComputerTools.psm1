@@ -33,6 +33,7 @@
 
     switch ((Get-CimInstance -CimSession $CimSession -ClassName Win32_OperatingSystem).Version)
     {
+      10.0.19041 { $Build = 2004 }
       10.0.18362 { $Build = 1903 }
       10.0.17763 { $Build = 1809 }
       10.0.17134 { $Build = 1803 }
