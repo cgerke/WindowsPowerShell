@@ -8,7 +8,7 @@
 !Modules/
 Modules/*
 !Modules/ActiveDirectoryTools
-!Modules/ComputerTools
+!Modules/Computer
 !Modules/FileSystemTools
 !init.ps1
 !Microsoft.PowerShell.code-workspace
