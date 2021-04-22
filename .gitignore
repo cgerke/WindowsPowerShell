@@ -9,7 +9,7 @@
 Modules/*
 !Modules/ActiveDirectoryTools
 !Modules/Computer
-!Modules/FileSystemTools
+!Modules/FileSystem
 !init.ps1
 !Microsoft.PowerShell.code-workspace
 !Microsoft.VSCode_profile.ps1
