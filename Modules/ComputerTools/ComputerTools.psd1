@@ -66,7 +66,7 @@ PowerShellVersion = '3.0'
 # FormatsToProcess = @()
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-NestedModules = @('GetComputerUpTime.psm1')
+NestedModules = @('GetComputer.psm1','GetComputerUpTime.psm1','GetMacAddress.psm1','GetToshibaWarranty.psm1','NewBackupUserProfile.ps1','NewWinPE.psm1')
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = '*'
