@@ -1,4 +1,10 @@
-﻿function Get-Computer
+﻿function Format-TimeSpan {
+  process {
+    "{0:00} days {1:00} hours {2:00} minutes {3:00} seconds" -f $_.Days,$_.Hours,$_.Minutes,$_.Seconds
+  }
+}
+
+function Get-Computer
 {
   <#
     .SYNOPSIS

@@ -1,10 +1,4 @@
-﻿function Format-TimeSpan {
-    process {
-      "{0:00} days {1:00} hours {2:00} minutes {3:00} seconds" -f $_.Days,$_.Hours,$_.Minutes,$_.Seconds
-    }
-  }
-
-function Get-Uptime
+﻿function Get-ComputerUptime
 {
 <#
   .SYNOPSIS
@@ -12,7 +6,7 @@ function Get-Uptime
   .DESCRIPTION
     Retrieve system uptime from a remote computer.
   .EXAMPLE
-    Get-Uptime -Computer $hostname
+    Get-ComputerUptime -Computer $hostname
   #>
 Param(
     [Parameter(Position = 0, mandatory = $true, ValueFromPipeline = $true)]
