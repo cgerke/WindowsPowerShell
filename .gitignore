@@ -7,7 +7,7 @@
 !CascadiaCode
 !Modules/
 Modules/*
-!Modules/ActiveDirectoryTools
+!Modules/ActiveDirectory
 !Modules/Computer
 !Modules/FileSystem
 !init.ps1
