@@ -93,7 +93,7 @@ New-TemporaryFile | ForEach-Object {
   Start-Process "git" -ArgumentList "push --set-upstream origin main" -Wait -NoNewWindow -WorkingDirectory "$_"
   Move-Item -Path "$_\.git" -Destination "$PWShell\" -Force -Verbose
   Set-Location "$PWShell"
-  Start-Process "git" -ArgumentList "reset --hard origin/main" -Wait -NoNewWindow -WorkingDirectory "$_"
+  Start-Process "git" -ArgumentList "reset --hard origin/main" -Wait -NoNewWindow -WorkingDirectory "$PWShell"
   Set-Location "$PSRoot"
   Set-Location "$PWShell"
   Add-Type -AssemblyName System.Windows.Forms
