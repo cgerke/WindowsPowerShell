@@ -11,6 +11,7 @@ Modules/*
 !Modules/Computer
 !Modules/FileSystem
 !init.ps1
+!LICENSE
 !Microsoft.PowerShell.code-workspace
 !Microsoft.VSCode_profile.ps1
 !Module.psm1

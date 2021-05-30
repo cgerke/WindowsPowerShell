@@ -20,8 +20,17 @@
 		"editor.renderWhitespace": "all",
 		"files.trimTrailingWhitespace": true,
 		"powershell.enableProfileLoading": true,
+		"terminal.integrated.cwd": "${fileDirname}",
 		"terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-		"terminal.integrated.shellArgs.windows": ["-ExecutionPolicy","RemoteSigned","-NoLogo"]
+		"terminal.integrated.shellArgs.windows": ["-ExecutionPolicy","RemoteSigned","-NoLogo","-NoProfile"],
+		"terminal.integrated.profiles.windows": {
+			"Git Bash": null,
+			"JavaScript Debug Terminal": null,
+			"PowerShell": {
+			  "source": "PowerShell",
+			  "args": ["-ExecutionPolicy","RemoteSigned","-NoLogo","-NoProfile"]
+			}
+		  }
 	},
 	"launch": {
 		"version": "0.2.0",

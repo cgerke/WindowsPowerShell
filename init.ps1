@@ -86,14 +86,14 @@ New-TemporaryFile | ForEach-Object {
   New-Item -Path "$_" -ItemType Directory -Force -Verbose
   Set-Location "$_"
   Set-Item -Path Env:HOME -Value $Env:USERPROFILE
-  Start-Process "git" -ArgumentList "init" -Wait -NoNewWindow
-  Start-Process "git" -ArgumentList "remote add origin https://github.com/cgerke/WindowsPowerShell" -Wait -NoNewWindow
-  Start-Process "git" -ArgumentList "fetch --all" -Wait -NoNewWindow
-  Start-Process "git" -ArgumentList "checkout master" -Wait -NoNewWindow
-  Start-Process "git" -ArgumentList "push --set-upstream origin master" -Wait -NoNewWindow
-  Move-Item -Path .\.git -Destination "$PWShell\" -Force -Verbose
+  Start-Process "git" -ArgumentList "init" -Wait -NoNewWindow -WorkingDirectory "$_"
+  Start-Process "git" -ArgumentList "remote add origin https://github.com/cgerke/WindowsPowerShell" -Wait -NoNewWindow -WorkingDirectory "$_"
+  Start-Process "git" -ArgumentList "fetch --all" -Wait -NoNewWindow -WorkingDirectory "$_"
+  Start-Process "git" -ArgumentList "checkout main" -Wait -NoNewWindow -WorkingDirectory "$_"
+  Start-Process "git" -ArgumentList "push --set-upstream origin main" -Wait -NoNewWindow -WorkingDirectory "$_"
+  Move-Item -Path "$_\.git" -Destination "$PWShell\" -Force -Verbose
   Set-Location "$PWShell"
-  Start-Process "git" -ArgumentList "reset --hard origin/master" -Wait -NoNewWindow
+  Start-Process "git" -ArgumentList "reset --hard origin/main" -Wait -NoNewWindow -WorkingDirectory "$_"
   Set-Location "$PSRoot"
   Set-Location "$PWShell"
   Add-Type -AssemblyName System.Windows.Forms
