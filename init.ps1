@@ -2,7 +2,7 @@
 .Synopsis
   Setup WindowsPowerShell on Windows
 .DESCRIPTION
-  Invoke-Expression $(Invoke-WebRequest https://raw.githubusercontent.com/cgerke/WindowsPowerShell/master/install.ps1)
+  Invoke-Expression $(Invoke-WebRequest https://raw.githubusercontent.com/cgerke/WindowsPowerShell/main/init.ps1)
 #>
 
 # SSH
