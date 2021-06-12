@@ -12,10 +12,10 @@ Modules/*
 !Modules/FileSystem
 !init.ps1
 !LICENSE
-!Microsoft.PowerShell.code-workspace
 !Microsoft.VSCode_profile.ps1
 !Module.psm1
 !PlasterManifest.xml
+!PowerShell.code-workspace
 !PSScriptAnalyzerSettings.psd1
 !README.md
 !settings.json
