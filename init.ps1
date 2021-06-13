@@ -107,11 +107,6 @@ If (-not ($wt)) {
 }
 Copy-Item -Path "$PWShell\settings.json" "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
 
-# Windows Terminal Powerline Font
-if (-not (Test-Path "$env:LOCALAPPDATA\Microsoft\Windows\Fonts\CascadiaCodePL.ttf")){
-  Copy-Item -Path "$PWShell\CascadiaCode\ttf\CascadiaCodePL.ttf" "$env:LOCALAPPDATA\Microsoft\Windows\Fonts\CascadiaCodePL.ttf"
-}
-
 # VSCode
 $vscode = $(Get-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object {$_.DisplayName -like "*Microsoft Visual Studio Code*"})
 If (-not ($vscode)) {

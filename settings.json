@@ -35,9 +35,8 @@
                 // Make changes here to the powershell.exe profile.
                 "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
                 "name": "Windows PowerShell",
-                "commandline": "powershell.exe -ExecutionPolicy RemoteSigned -NoExit ; Set-Theme Paradox",
+                "commandline": "powershell.exe -ExecutionPolicy RemoteSigned -NoExit ; Set-Theme ys",
                 "colorScheme": "Dark+",
-                "fontFace": "Cascadia Code PL",
                 "fontSize": 10,
                 "hidden": false
             },
