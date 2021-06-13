@@ -15,8 +15,8 @@ Modules/*
 !Microsoft.VSCode_profile.ps1
 !Module.psm1
 !PlasterManifest.xml
-!PowerShell.code-workspace
 !PSScriptAnalyzerSettings.psd1
 !README.md
 !settings.json
 !test.ps1
+!WindowsPowerShell.code-workspace
