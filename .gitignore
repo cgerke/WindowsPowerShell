@@ -4,7 +4,6 @@
 !.gitignore
 !git-prompt.sh
 !.vscode
-!CascadiaCode
 !Modules/
 Modules/*
 !Modules/ActiveDirectory

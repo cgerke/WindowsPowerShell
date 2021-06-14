@@ -305,5 +305,21 @@
             "#>"
         ],
         "description": "Help comment block"
-    }
+    },
+    "CSV Loop": {
+        "prefix": "csvloop",
+        "body": [
+            "\\$tmp = New-TemporaryFile",
+            "\\$file = \"C:\\temp\\file.csv\"",
+            "# Skip header"
+            "Get-Content \"\\$file\" | Select-Object -Skip 1 | Out-File $tmp",
+            "\\$csv = Import-Csv \\$tmp",
+            "",
+            "foreach (\\$row in \\$csv) {",
+            "  $Column = $row.ColumnName",
+            "  $0",
+            "}"
+        ],
+        "description": "CSV Loop"
+    },
 }
