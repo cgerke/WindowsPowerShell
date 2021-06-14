@@ -314,10 +314,13 @@
             "# Skip header",
             "Get-Content \"\\$file\" | Select-Object -Skip 1 | Out-File $tmp",
             "\\$csv = Import-Csv \\$tmp",
+            "\\$rows = 0",
+            "\\$targets = 0",
             "",
             "foreach (\\$row in \\$csv) {",
             "  $Column = $row.ColumnName",
             "  $0",
+            "  \\$rows ++",
             "}"
         ],
         "description": "CSV Loop"
