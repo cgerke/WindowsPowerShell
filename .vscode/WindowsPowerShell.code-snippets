@@ -319,8 +319,12 @@
             "",
             "foreach (\\$row in \\$csv) {",
             "  $Column = $row.ColumnName",
+            "  $ColumnToFilter = $row.'Special Column'",
+            "  If ($ColumnToFilter -eq 'SomeValue'){",
+            "    \\$rows ++",
+            "  }",
             "  $0",
-            "  \\$rows ++",
+
             "}"
         ],
         "description": "CSV Loop"
