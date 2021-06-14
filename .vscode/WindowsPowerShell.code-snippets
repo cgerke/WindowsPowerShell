@@ -311,7 +311,7 @@
         "body": [
             "\\$tmp = New-TemporaryFile",
             "\\$file = \"C:\\temp\\file.csv\"",
-            "# Skip header"
+            "# Skip header",
             "Get-Content \"\\$file\" | Select-Object -Skip 1 | Out-File $tmp",
             "\\$csv = Import-Csv \\$tmp",
             "",
