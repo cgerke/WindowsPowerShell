@@ -91,7 +91,7 @@ function Copy-WithRobocopy
       $file = "$($data[4])"
     };
     Write-Progress "Percentage $($data[0])" -Activity "Robocopy" -CurrentOperation "$($file)" -ErrorAction SilentlyContinue;
-    "$($data[0]) $($file)" | Tee-Object -FilePath "C:\temp\robo.txt" -Append
+    "$($data[0]) $($file)" | Tee-Object -FilePath "$env:TEMP\robo.txt" -Append
   }
 }
 
