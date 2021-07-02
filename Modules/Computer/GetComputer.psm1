@@ -80,6 +80,7 @@
                     HotFix                 = $CIMHotFix
                 }
                 Remove-CimSession -ComputerName $i
+
                 return $ComputerObject
             }
         }

@@ -31,7 +31,9 @@
         $CimSession = New-CimSession -ComputerName $i -SessionOption $CimSessionOption
       }
 
-      $ComputerObject = Get-CimInstance -CimSession $CimSession -ClassName Win32_NetworkAdapterConfiguration | Where-Object { $null -ne $_.MACAddress } | Select-Object Description, MACAddress
+      $ComputerObject = Get-CimInstance -CimSession $CimSession -ClassName Win32_NetworkAdapterConfiguration |
+      Where-Object { $null -ne $_.MACAddress } |
+      Select-Object Description, MACAddress
 
       Remove-CimSession -ComputerName $i
 
