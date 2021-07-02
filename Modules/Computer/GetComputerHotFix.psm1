@@ -33,10 +33,14 @@
                 $CimSession = New-CimSession -ComputerName $i -SessionOption $CimSessionOption
             }
 
-            Get-CimInstance -CimSession $CimSession -ClassName Win32_QuickFixEngineering |
+            $ComputerObject = Get-CimInstance -CimSession $CimSession -ClassName Win32_QuickFixEngineering |
             Select-Object Description, HotFixID, InstalledOn |
             Sort-Object -Descending -Property InstalledOn |
             Format-Table
+
+            Remove-CimSession -ComputerName $i
+
+            return $ComputerObject
         }
     }
 }

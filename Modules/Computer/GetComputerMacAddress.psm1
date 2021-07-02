@@ -31,9 +31,13 @@
                 $CimSession = New-CimSession -ComputerName $i -SessionOption $CimSessionOption
             }
 
-            Get-CimInstance -CimSession $CimSession -ClassName Win32_NetworkAdapterConfiguration |
+            $ComputerObject = Get-CimInstance -CimSession $CimSession -ClassName Win32_NetworkAdapterConfiguration |
             Where-Object { $null -ne $_.MACAddress } | Select-Object Description, MACAddress |
             Format-Table
+
+            Remove-CimSession -ComputerName $i
+
+            return $ComputerObject
         }
     }
 }

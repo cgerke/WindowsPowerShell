@@ -37,6 +37,9 @@
                 LastBootUpTime         = $CIMopsys.LastBootUpTime
                 LastBootUpTimeRelative = (Get-Date) - $CIMopsys.LastBootUpTime | Format-TimeSpan
             }
+
+            Remove-CimSession -ComputerName $i
+
             return $ComputerObject
         }
     }
