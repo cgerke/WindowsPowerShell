@@ -7,7 +7,7 @@ function Get-ComputerUserprofileAge
   .DESCRIPTION
     Retrieve userprofile age from a computer.
   .EXAMPLE
-    Get-Computer -Computer $hostname
+    Get-ComputerUserprofileAge -Computer $hostname
   .EXAMPLE
     "$hostname","$hostname2" | Get-ComputerUserprofileAge
   #>
@@ -40,9 +40,7 @@ function Get-ComputerUserprofileAge
                     $CimSession = New-CimSession -ComputerName $i -SessionOption $CimSessionOption
                 }
 
-
-
-                Get-CimInstance -CimSession $CimSession -ClassName Win32_Userprofile | Select-Object lastusetime, localpath, sid
+                $ComputerObject = Get-CimInstance -CimSession $CimSession -ClassName Win32_Userprofile | Select-Object lastusetime, localpath, sid
 
                 Remove-CimSession -ComputerName $i
 
