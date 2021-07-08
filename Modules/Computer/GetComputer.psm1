@@ -57,6 +57,7 @@
                 $CIMdisk = Get-CimInstance -CimSession $CimSession -ClassName Win32_LogicalDisk -Filter "DeviceID='C:'"
                 $CIMmac = Get-CimInstance -CimSession $CimSession -ClassName Win32_NetworkAdapterConfiguration | Where-Object { $null -ne $_.MACAddress } | Select-Object Description, MACAddress
                 $CIMHotFix = Get-CimInstance -CimSession $CimSession -ClassName Win32_QuickFixEngineering
+                $CIMuserprofile = Get-CimInstance -CimSession $CimSession -ClassName Win32_Userprofile | Select-Object lastusetime, localpath, sid
                 $TotalDiskSpace = [math]::round($CIMdisk.Size / 1GB, 0)
                 $FreeDiskSpace = [math]::round($CIMdisk.FreeSpace / 1GB, 0)
 
@@ -77,6 +78,7 @@
                     Build                  = ((Get-CimInstance -CimSession $CimSession -ClassName Win32_OperatingSystem).Version)
                     Version                = $Version
                     InstallDate            = $CIMopsys.InstallDate
+                    Userprofile            = $CIMuserprofile
                     HotFix                 = $CIMHotFix
                 }
                 Remove-CimSession -ComputerName $i
