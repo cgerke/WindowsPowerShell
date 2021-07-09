@@ -19,28 +19,7 @@
     {
         foreach ( $i in $Computer )
         {
-            ### WinRM remoting by default
-            ### Enable-PSRemoting -SkipNetworkProfileCheck -Force
-            If (Test-WSMan -ComputerName $i -ErrorAction SilentlyContinue)
-            {
-                Write-Information "WinRM available." -InformationAction Continue
-                $CimSession = New-CimSession -ComputerName $i
-            }
-            Else
-            {
-                Write-Information "Using DCOM as WinRM is not available" -InformationAction Continue
-                $CimSessionOption = New-CimSessionOption -Protocol "DCOM"
-                $CimSession = New-CimSession -ComputerName $i -SessionOption $CimSessionOption
-            }
-
-            $ComputerObject = Get-CimInstance -CimSession $CimSession -ClassName Win32_QuickFixEngineering |
-            Select-Object Description, HotFixID, InstalledOn |
-            Sort-Object -Descending -Property InstalledOn |
-            Format-Table
-
-            Remove-CimSession -ComputerName $i
-
-            return $ComputerObject
+            $(Get-Computer -Computer $Computer).HotFix
         }
     }
 }
