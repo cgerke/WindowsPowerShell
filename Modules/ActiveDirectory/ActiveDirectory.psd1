@@ -66,7 +66,7 @@ RequiredModules = 'ActiveDirectory'
 # FormatsToProcess = @()
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-# NestedModules = @()
+NestedModules = @('ActiveDirectory.psm1','GetGroup.psm1','GetGroupMember.psm1','GetLAPS.psm1','GetPassword.psm1','GetUser.psm1','GetUserExpiry.psm1','GetUserPasswordExpiry.psm1')
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = '*'
