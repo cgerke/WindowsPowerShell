@@ -377,8 +377,8 @@ function Uninstall-App {
         if ($AllUsers -or $GlobalAndAllUsers) {
             Write-Host "Collecting hive data for all users"
             $AllProfiles = Get-CimInstance Win32_UserProfile | Select LocalPath, SID, Loaded, Special | Where {$_.SID -like "S-1-5-21-*"}
-            $MountedProfiles = $AllProfiles | Where {$_.Loaded -eq $true}
-            $UnmountedProfiles = $AllProfiles | Where {$_.Loaded -eq $false}
+            $MountedProfiles = $AllProfiles | Where-Object {$_.Loaded -eq $true}
+            $UnmountedProfiles = $AllProfiles | Where-Object {$_.Loaded -eq $false}
 
             Write-Host "Processing mounted hives"
             $MountedProfiles | % {
@@ -414,7 +414,7 @@ function Uninstall-App {
         Write-Output $Apps
     }
 
-    Get-InstalledApplications | Select DisplayName, InstallLocation
+    Get-InstalledApplications | Select-Object DisplayName, InstallLocation
 
 
     function Install-GoogleEarth {
@@ -623,4 +623,21 @@ function Uninstall-App {
   Copy-Item "$DesktopSource" -Destination $DesktopDestination -force
 
 
+}
+
+
+wmic /node:computer process call create 'tskill chrome'
+
+$Endpoints = "COMPUTERNAME"
+foreach ($Endpoint in $Endpoints) {
+    If (Test-Connection -Computername "$Endpoint" -Buffersize 16 -Count 1 -Ea 0 -Quiet) {
+        "$Endpoint" + " :ONLINE"
+        Get-ChildItem "\\$Endpoint\c$\Users\" | Select-Object FullName,LastWriteTime | sort-object -property Lastwritetime -descending
+        $users = Get-ChildItem (Join-Path -Path "\\$Endpoint\c$" -ChildPath 'Users') -Exclude 'Public', 'ADMINI~*', 'Administrator', 'defaultuser0', 'mdt-build'
+        if ($null -ne $users) {
+            foreach ($user in $users) {
+                Get-ChildItem "\\$Endpoint\c$\Users\$user\" | Select-Object FullName,LastWriteTime | sort-object -property Lastwritetime -descending
+            }
+        }
+    }
 }
