@@ -7,7 +7,14 @@
 	"settings": {
 		"files.exclude": {
 			"**/*.exe": true,
-			"**/CascadiaCode":true
+			"**/oh-my-posh":true,
+			"**/PackageManagement":true,
+			"**/Plaster":true,
+			"**/posh-git":true,
+			"**/Posh-SSH":true,
+			"**/PSScriptAnalyzer":true,
+			"**/PSSudo":true,,
+			"**/Scripts/InstalledScriptInfos":true
 		},
 		"powershell.codeFormatting.autoCorrectAliases": true,
 		"powershell.codeFormatting.trimWhitespaceAroundPipe": true,
