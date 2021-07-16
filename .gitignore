@@ -9,6 +9,7 @@ Modules/*
 !Modules/ActiveDirectory
 !Modules/Computer
 !Modules/FileSystem
+!Modules/Templates
 !Scripts/
 Scripts/*
 !Scripts/COMPAT_LAYER.ps1
