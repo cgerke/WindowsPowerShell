@@ -13,8 +13,9 @@
 			"**/posh-git":true,
 			"**/Posh-SSH":true,
 			"**/PSScriptAnalyzer":true,
-			"**/PSSudo":true,,
-			"**/Scripts/InstalledScriptInfos":true
+			"**/PSSudo":true,
+			"**/Scripts":true,
+			"**/*.msixbundle":true
 		},
 		"powershell.codeFormatting.autoCorrectAliases": true,
 		"powershell.codeFormatting.trimWhitespaceAroundPipe": true,
