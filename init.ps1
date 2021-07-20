@@ -34,19 +34,19 @@ Remove-Item -Path $Profile -Force -ErrorAction SilentlyContinue
 # Repositories
 "PSGallery" | ForEach-Object -process {
   if (-not (Get-PSRepository -Name "$_")) {
-    Set-PSRepository -Name "$_" -InstallationPolicy Trusted -Verbose
+    Set-PSRepository -Name "$_" -InstallationPolicy Trusted
   }
 }
 
 # Package Provider (Requires PSGallery Trust)
 "Nuget" | ForEach-Object -process {
-   Install-PackageProvider -Name "$_" -Scope CurrentUser -Force -Verbose
+   Install-PackageProvider -Name "$_" -Scope CurrentUser -Force
 }
 
 # Modules (Requires Nuget)
 "PowerShellGet","oh-my-posh","posh-git", "Posh-SSH", "PSScriptAnalyzer","Pester","Plaster","PSSudo" | ForEach-Object -process {
   if (-not (Get-Module -ListAvailable -Name "$_")) {
-    Install-Module "$_" -Scope CurrentUser -Force -Confirm:$false -Verbose
+    Install-Module "$_" -Scope CurrentUser -Force -Confirm:$false
   }
 }
 
