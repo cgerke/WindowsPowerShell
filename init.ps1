@@ -58,7 +58,8 @@ If (-not ($appinstaller)){
 
 $winget = $(& winget --version)
 If (-not ($winget)) {
-  Invoke-WebRequest -Uri "https://github.com/microsoft/winget-cli/releases/download/v1.0.11692/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -OutFile "$PWShell\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+  $Uri = "https://github.com/microsoft/winget-cli/releases/download/v1.0.11692/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+  Invoke-WebRequest -Uri $Uri -OutFile "$PWShell\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
   Add-AppxPackage -Path "$PWShell\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
   Exit 1
 }
@@ -77,7 +78,9 @@ If (-not ($git)) {
 #}
 
 # Fetch REPO
-Remove-Item -Path "$PWShell\.git" -Recurse -Force -ErrorAction SilentlyContinue
+# Remove-Item -Path "$PWShell\.git" -Recurse -Force -ErrorAction SilentlyContinue
+# Alternative due to the BUG "Remove-Item : Access to the cloud file is denied"
+[System.IO.Directory]::Delete("$PWShell\.git",$true)
 
 <# TODO Need to investigate this further, why does this environment var
 cause git init to fail? Should I just (temporarily remove HOMEPATH)
@@ -86,7 +89,7 @@ Remove-Item Env:\HOMEPATH
 New-TemporaryFile | ForEach-Object {
   Remove-Item "$_" -Force -ErrorAction SilentlyContinue
   New-Item -Path "$_" -ItemType Directory -Force -Verbose
-  Set-Location "$_"
+  Set-Location -Path "$_"
   Set-Item -Path Env:HOME -Value $Env:USERPROFILE
   Start-Process "git" -ArgumentList "init" -Wait -NoNewWindow -WorkingDirectory "$_"
   Start-Process "git" -ArgumentList "remote add origin https://github.com/cgerke/WindowsPowerShell" -Wait -NoNewWindow -WorkingDirectory "$_"
