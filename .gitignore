@@ -3,7 +3,8 @@
 !.gitattributes
 !.gitignore
 !git-prompt.sh
-!.vscode
+!.
+!Ideas/
 !Modules/
 Modules/*
 !Modules/ActiveDirectory
