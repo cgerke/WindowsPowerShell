@@ -80,7 +80,11 @@ If (-not ($git)) {
 # Fetch REPO
 # Remove-Item -Path "$PWShell\.git" -Recurse -Force -ErrorAction SilentlyContinue
 # Alternative due to the BUG "Remove-Item : Access to the cloud file is denied"
-Get-ChildItem -recurse "$PWShell\.git" | Sort-Object -Property FullName -Descending | ForEach-Object { $_.Delete() }
+"$PWShell\.git" | ForEach-Object {
+  Get-ChildItem -Recurse $_ -force -file | ForEach-Object { Remove-Item $_ -Force -Verbose}
+ # This gets paths in reverse order so you can remove from the parent down
+  (Get-Childitem $_ -Recurse -Force).Fullname | Sort-Object {$_.length} -Descending | Remove-Item -Force -Verbose;
+}
 [System.IO.Directory]::Delete("$PWShell\.git",$true)
 
 <# TODO Need to investigate this further, why does this environment var
