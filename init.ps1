@@ -58,6 +58,8 @@ If (-not ($appinstaller)){
 
 $winget = $(& winget --version)
 If (-not ($winget)) {
+  Invoke-WebRequest -Uri "https://github.com/microsoft/winget-cli/releases/download/v1.0.11692/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -OutFile "$PWShell\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+  Add-AppxPackage -Path "$PWShell\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
   Exit 1
 }
 
