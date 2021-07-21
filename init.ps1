@@ -6,8 +6,7 @@
 #>
 
 # Tools
-try
-{
+try {
   Start-Process -FilePath powershell.exe -ArgumentList {
     -noprofile
     # SSH
@@ -15,13 +14,10 @@ try
     Set-ItemProperty $Registry UseWUserver -Value 0 -ErrorAction Ignore
     Get-WindowsCapability -Name 'OpenSSH.Client*' -Online | Where-Object state -NE 'Installed' | Add-WindowsCapability -Online
     Set-ItemProperty $Registry UseWUserver -Value 1
-
     # Telnet
     Get-WindowsOptionalFeature -Online -FeatureName "TelnetClient" | Where-Object state -NE 'Installed' | Enable-WindowsOptionalFeature -Online -FeatureName "TelnetClient" -NoRestart
-
     #Sandbox
     Get-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" | Where-Object state -NE 'Installed' | Enable-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" -All -NoRestart
-
   } -Verb RunAs –ErrorAction Ignore
 } catch [System.InvalidOperationException] {
     If ( $_.Exception.Message -like "*canceled*" )
