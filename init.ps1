@@ -5,53 +5,40 @@
   Invoke-Expression $(Invoke-WebRequest https://raw.githubusercontent.com/cgerke/WindowsPowerShell/main/init.ps1)
 #>
 
-# SSH
+# Toolss
 try
 {
   Start-Process -FilePath powershell.exe -ArgumentList {
     -noprofile
-    Set-ItemProperty "REGISTRY::HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU" UseWUserver -Value 0
-    Get-WindowsCapability -Name 'OpenSSH.Client*' -Online | Where-Object state -NE 'Installed' | Add-WindowsCapability -Online
-    Set-ItemProperty "REGISTRY::HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU" UseWUserver -Value 1
+    # SSH
+    $Registry = 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU'
+    If ( Test-Path -Path $Registry ){
+      Set-ItemProperty $Registry UseWUserver -Value 0
+    }
+    Get-WindowsCapability -Name 'OpenSSH.Client*' -Online |
+    Where-Object state -NE 'Installed' |
+    Add-WindowsCapability -Online
+    If ( Test-Path -Path $Registry ){
+      Set-ItemProperty $Registry UseWUserver -Value 1
+    }
+
+    # Telnet
+    Get-WindowsOptionalFeature -Online -FeatureName "TelnetClient" |
+    Where-Object state -NE 'Installed' |
+    Enable-WindowsOptionalFeature -Online -FeatureName "TelnetClient" -NoRestart
+
+    #Sandbox
+    Get-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" |
+    Where-Object state -NE 'Installed' |
+    Enable-WindowsOptionalFeature -FeatureName "Containers-DisposableClientVM" -All -Online -NoRestart
+
   } -Verb RunAs –ErrorAction Ignore
 }
 catch [System.InvalidOperationException]
 {
   If ( $_.Exception.Message -like "*canceled*" )
   {
-    "Cancelled"
-  }
-}
-
-# Telnet
-try
-{
-  Start-Process -FilePath powershell.exe -ArgumentList {
-    -noprofile
-    Get-WindowsOptionalFeature -Online -FeatureName "TelnetClient" | Where-Object state -NE 'Installed' | Enable-WindowsOptionalFeature -Online -FeatureName "TelnetClient"
-  } -Verb RunAs
-}
-catch [System.InvalidOperationException]
-{
-  If ( $_.Exception.Message -like "*canceled*" )
-  {
-    "Cancelled"
-  }
-}
-
-# Sandbox
-try
-{
-  Start-Process -FilePath powershell.exe -ArgumentList {
-    -noprofile
-    Get-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" | Where-Object state -NE 'Installed' | Enable-WindowsOptionalFeature -FeatureName "Containers-DisposableClientVM" -All -Online
-  } -Verb RunAs
-}
-catch [System.InvalidOperationException]
-{
-  If ( $_.Exception.Message -like "*canceled*" )
-  {
-    "Cancelled"
+    Continue
   }
 }
 
