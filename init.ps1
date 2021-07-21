@@ -10,10 +10,9 @@ try {
   Start-Process -FilePath powershell.exe -ArgumentList {
     -noprofile
     # SSH
-    $Registry = 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU'
-    Set-ItemProperty $Registry UseWUserver -Value 0 -ErrorAction Ignore
+    Set-ItemProperty 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU' UseWUserver -Value 0 -ErrorAction Ignore
     Get-WindowsCapability -Name 'OpenSSH.Client*' -Online | Where-Object state -NE 'Installed' | Add-WindowsCapability -Online
-    Set-ItemProperty $Registry UseWUserver -Value 1
+    Set-ItemProperty 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU' UseWUserver -Value 1 -ErrorAction Ignore
     # Telnet
     Get-WindowsOptionalFeature -Online -FeatureName 'TelnetClient' | Where-Object state -NE 'Installed' | Enable-WindowsOptionalFeature -Online -FeatureName 'TelnetClient' -NoRestart
     #Sandbox
