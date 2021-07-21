@@ -76,9 +76,9 @@ If (-not ($winget))
 }
 
 # Git
-$git = $(Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* |
-Where-Object { $_.DisplayName -like "*Git*" })
-If (-not ($git)) {
+$UninstallKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
+$GitInstalled = $(Get-ItemProperty $UninstallKey | Where-Object { $_.DisplayName -like "*Git*" })
+If (-not ($GitInstalled)) {
   Start-Process "winget" -ArgumentList "install --id Git.Git --silent" -Wait -NoNewWindow
 }
 
@@ -129,8 +129,8 @@ If (-not ($wt)) {
 }
 
 # VSCode
-$vscode = $(Get-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* |
-Where-Object { $_.DisplayName -like "*Microsoft Visual Studio Code*" })
-If (-not ($vscode)) {
+$UninstallKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
+$CodeInstalled = $(Get-ItemProperty $UninstallKey | Where-Object { $_.DisplayName -like "*Microsoft Visual Studio Code*" })
+If (-not ($CodeInstalled)) {
   Start-Process "winget" -ArgumentList "install --id Microsoft.VisualStudioCode-User-x64 --silent" -Wait -NoNewWindow
 }
