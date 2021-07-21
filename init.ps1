@@ -5,7 +5,7 @@
   Invoke-Expression $(Invoke-WebRequest https://raw.githubusercontent.com/cgerke/WindowsPowerShell/main/init.ps1)
 #>
 
-# Toolss
+# Tools
 try
 {
   Start-Process -FilePath powershell.exe -ArgumentList {
@@ -30,7 +30,7 @@ try
     #Sandbox
     Get-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" |
     Where-Object state -NE 'Installed' |
-    Enable-WindowsOptionalFeature -FeatureName "Containers-DisposableClientVM" -All -Online -NoRestart
+    Enable-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" -All -NoRestart
 
   } -Verb RunAs –ErrorAction Ignore
 }
@@ -62,7 +62,8 @@ Remove-Item -Path $Profile -Force -ErrorAction SilentlyContinue
 }
 
 # Modules (Requires Nuget)
-"PowerShellGet", "oh-my-posh", "posh-git", "Posh-SSH", "PSScriptAnalyzer", "Pester", "Plaster", "PSSudo" | ForEach-Object -Process {
+"PowerShellGet", "oh-my-posh", "posh-git", "Posh-SSH", "PSScriptAnalyzer", "Pester", "Plaster", "PSSudo" |
+ForEach-Object -Process {
   if (-not (Get-Module -ListAvailable -Name "$_"))
   {
     Install-Module "$_" -Scope CurrentUser -Force -Confirm:$false
@@ -70,23 +71,23 @@ Remove-Item -Path $Profile -Force -ErrorAction SilentlyContinue
 }
 
 # Winget
-$appinstaller = $(Get-AppxPackage -Name "Microsoft.DesktopAppInstaller")
-If (-not ($appinstaller))
-{
-  Add-AppxPackage -Path "$PWShell\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
-}
-
 $winget = $(& winget --version)
 If (-not ($winget))
 {
-  $Uri = "https://github.com/microsoft/winget-cli/releases/download/v1.0.11692/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-  Invoke-WebRequest -Uri $Uri -OutFile "$PWShell\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-  Add-AppxPackage -Path "$PWShell\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-  #Exit 1
+  $appinstaller = $(Get-AppxPackage -Name "Microsoft.DesktopAppInstaller")
+  If (-not ($appinstaller))
+  {
+    $Msix = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+    $Uri = "https://github.com/microsoft/winget-cli/releases/download/v1.0.11692/$Msix"
+    Invoke-WebRequest -Uri $Uri -OutFile "$PWShell\$Msix"
+    Add-AppxPackage -Path "$PWShell\$Msix"
+    #Exit 1
+  }
 }
 
 # Git
-$git = $(Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object { $_.DisplayName -like "*Git*" })
+$git = $(Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* |
+Where-Object { $_.DisplayName -like "*Git*" })
 If (-not ($git))
 {
   Start-Process "winget" -ArgumentList "install --id Git.Git --silent" -Wait -NoNewWindow
@@ -99,22 +100,28 @@ Copy-Item -Path "$PWShell\.bashrc" "$env:HOMEPATH\.bashrc"
 
 # Fetch REPO
 # Remove-Item -Path "$PWShell\.git" -Recurse -Force -ErrorAction SilentlyContinue
-# BUG: Alternative due to "Remove-Item : Access to the cloud file is denied." This simply removes files recursively.
-"$PWShell\.git" | ForEach-Object {
-  Get-ChildItem -Recurse $_ -Force -File | ForEach-Object { Remove-Item $_.FullName -Force }
+# BUG: "Remove-Item : Access to the cloud file is denied." This simply removes files recursively.
+"$PWShell\.git" |
+ForEach-Object {
+  Get-ChildItem -Recurse $_ -Force -File |
+  ForEach-Object {
+    Remove-Item $_.FullName -Force
+  }
 }
 
 <# TODO Need to investigate this further, why does this environment var
 cause git init to fail? Should I just (temporarily remove HOMEPATH)
 Remove-Item Env:\HOMEPATH
 -or #>
-New-TemporaryFile | ForEach-Object {
+$GitRepo = "https://github.com/cgerke/WindowsPowerShell"
+New-TemporaryFile |
+ForEach-Object {
   Remove-Item "$_" -Force -ErrorAction SilentlyContinue
   New-Item -Path "$_" -ItemType Directory -Force
   Set-Location -Path "$_"
   Set-Item -Path Env:HOME -Value $Env:USERPROFILE
   Start-Process "git" -ArgumentList "init" -Wait -NoNewWindow -WorkingDirectory "$_"
-  Start-Process "git" -ArgumentList "remote add origin https://github.com/cgerke/WindowsPowerShell" -Wait -NoNewWindow -WorkingDirectory "$_"
+  Start-Process "git" -ArgumentList "remote add origin $GitRepo" -Wait -NoNewWindow -WorkingDirectory "$_"
   Start-Process "git" -ArgumentList "fetch --all" -Wait -NoNewWindow -WorkingDirectory "$_"
   Start-Process "git" -ArgumentList "checkout main" -Wait -NoNewWindow -WorkingDirectory "$_"
   Start-Process "git" -ArgumentList "push --set-upstream origin main" -Wait -NoNewWindow -WorkingDirectory "$_"
@@ -132,11 +139,13 @@ $wt = $(Get-AppxPackage -Name "Microsoft.WindowsTerminal")
 If (-not ($wt))
 {
   Start-Process "winget" -ArgumentList "install --id Microsoft.WindowsTerminal --silent" -Wait -NoNewWindow
+  Copy-Item -Path "$PWShell\settings.json" "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
 }
-Copy-Item -Path "$PWShell\settings.json" "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
+
 
 # VSCode
-$vscode = $(Get-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object { $_.DisplayName -like "*Microsoft Visual Studio Code*" })
+$vscode = $(Get-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* |
+Where-Object { $_.DisplayName -like "*Microsoft Visual Studio Code*" })
 If (-not ($vscode))
 {
   Start-Process "winget" -ArgumentList "install --id Microsoft.VisualStudioCode-User-x64 --silent" -Wait -NoNewWindow
