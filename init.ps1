@@ -88,7 +88,7 @@ Remove-Item Env:\HOMEPATH
 -or #>
 New-TemporaryFile | ForEach-Object {
   Remove-Item "$_" -Force -ErrorAction SilentlyContinue
-  New-Item -Path "$_" -ItemType Directory -Force -Verbose
+  New-Item -Path "$_" -ItemType Directory -Force
   Set-Location -Path "$_"
   Set-Item -Path Env:HOME -Value $Env:USERPROFILE
   Start-Process "git" -ArgumentList "init" -Wait -NoNewWindow -WorkingDirectory "$_"
@@ -96,13 +96,13 @@ New-TemporaryFile | ForEach-Object {
   Start-Process "git" -ArgumentList "fetch --all" -Wait -NoNewWindow -WorkingDirectory "$_"
   Start-Process "git" -ArgumentList "checkout main" -Wait -NoNewWindow -WorkingDirectory "$_"
   Start-Process "git" -ArgumentList "push --set-upstream origin main" -Wait -NoNewWindow -WorkingDirectory "$_"
-  Copy-Item -Path "$_\.git" -Destination "$PWShell\" -Recurse -Force -Verbose
+  Copy-Item -Path "$_\.git" -Destination "$PWShell\" -Recurse -Force
   Set-Location "$PWShell"
   Start-Process "git" -ArgumentList "reset --hard origin/main" -Wait -NoNewWindow -WorkingDirectory "$PWShell"
   Set-Location "$PSRoot"
   Set-Location "$PWShell"
-  #Add-Type -AssemblyName System.Windows.Forms
-  #[System.Windows.Forms.SendKeys]::SendWait("%n{ENTER}")
+  Add-Type -AssemblyName System.Windows.Forms
+  [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
 }
 
 # Windows Terminal
