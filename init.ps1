@@ -6,22 +6,27 @@
 #>
 
 # Tools
+# Disable enterprise Windows Update Server temporarily
+$WUServer = 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU'
 try {
   Start-Process -FilePath powershell.exe -ArgumentList {
     -noprofile
     # SSH
-    $Registry = 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU'
-    Set-ItemProperty $Registry UseWUserver -Value 0 -ErrorAction Ignore
-    Get-WindowsCapability -Name 'OpenSSH.Client*' -Online | Where-Object state -NE 'Installed' | Add-WindowsCapability -Online
-    Set-ItemProperty $Registry UseWUserver -Value 1
-    # Telnet
-    Get-WindowsOptionalFeature -Online -FeatureName "TelnetClient" | Where-Object state -NE 'Installed' | Enable-WindowsOptionalFeature -Online -FeatureName "TelnetClient" -NoRestart
-    #Sandbox
-    Get-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" | Where-Object state -NE 'Installed' | Enable-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" -All -NoRestart
-  } -Verb RunAs –ErrorAction Ignore
-} catch [System.InvalidOperationException] {
-    If ( $_.Exception.Message -like "*canceled*" )
-    {
+    Set-ItemProperty -Path $WUServer UseWUserver -Value 0 -ErrorAction Ignore
+    Get-WindowsCapability -Name 'OpenSSH.Client*' -Online |
+    Where-Object state -NE 'Installed' |
+    Add-WindowsCapability -Online
+    Set-ItemProperty -Path $WUServer UseWUserver -Value 1 -ErrorAction Ignore
+    # Telnet and Sandbox
+    $Feature = 'TelnetClient', 'Containers-DisposableClientVM'
+    foreach($FeatureName in $Feature) {
+      Get-WindowsOptionalFeature -Online -FeatureName $FeatureName |
+      Where-Object state -NE 'Enabled' |
+      Enable-WindowsOptionalFeature -Online -FeatureName $FeatureName -All -NoRestart
+    }
+  } -Verb RunAs -ErrorAction Ignore
+} catch {
+    If ( $_.Exception.Message -like "*canceled*" ) {
       "Skipped"
     } Else {
       "Error"
@@ -29,15 +34,16 @@ try {
 }
 
 # Paths
-New-Item -Path $Profile -Type File
+New-Item -Path $Profile -Type File -ErrorAction Ignore
 $PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
 $PWShell = "$PSRoot\WindowsPowerShell"
 Remove-Item -Path $Profile -Force -ErrorAction SilentlyContinue
 
 # Repositories
 "PSGallery" | ForEach-Object -Process {
-if (-not (Get-PSRepository -Name "$_")) {
-  Set-PSRepository -Name "$_" -InstallationPolicy Trusted
+  if (-not (Get-PSRepository -Name "$_")) {
+    Set-PSRepository -Name "$_" -InstallationPolicy Trusted
+  }
 }
 
 # Package Provider (Requires PSGallery Trust)
@@ -46,7 +52,8 @@ if (-not (Get-PSRepository -Name "$_")) {
 }
 
 # Modules (Requires Nuget)
-"PowerShellGet", "oh-my-posh", "posh-git", "Posh-SSH", "PSScriptAnalyzer", "Pester", "Plaster", "PSSudo" | ForEach-Object -Process {
+"PowerShellGet", "oh-my-posh", "posh-git", "Posh-SSH", "PSScriptAnalyzer", "Pester", "Plaster", "PSSudo" |
+ForEach-Object -Process {
   if (-not (Get-Module -ListAvailable -Name "$_")) {
     Install-Module "$_" -Scope CurrentUser -Force -Confirm:$false
   }
@@ -68,8 +75,9 @@ If (-not ($winget))
 }
 
 # Git
-$git = $(Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object { $_.DisplayName -like "*Git*" })
-If (-not ($git)) {
+$UninstallKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
+$GitInstalled = $(Get-ItemProperty $UninstallKey | Where-Object { $_.DisplayName -like "*Git*" })
+If (-not ($GitInstalled)) {
   Start-Process "winget" -ArgumentList "install --id Git.Git --silent" -Wait -NoNewWindow
 }
 
@@ -82,7 +90,8 @@ Copy-Item -Path "$PWShell\.bashrc" "$env:HOMEPATH\.bashrc"
 # Remove-Item -Path "$PWShell\.git" -Recurse -Force -ErrorAction SilentlyContinue
 # BUG: "Remove-Item : Access to the cloud file is denied." This simply removes files recursively.
 "$PWShell\.git" | ForEach-Object {
-  Get-ChildItem -Recurse $_ -Force -File | ForEach-Object {
+  Get-ChildItem -Recurse $_ -Force -File |
+  ForEach-Object {
     Remove-Item $_.FullName -Force
   }
 }
@@ -119,7 +128,8 @@ If (-not ($wt)) {
 }
 
 # VSCode
-$vscode = $(Get-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object { $_.DisplayName -like "*Microsoft Visual Studio Code*" })
-If (-not ($vscode)) {
+$UninstallKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
+$CodeInstalled = $(Get-ItemProperty $UninstallKey | Where-Object { $_.DisplayName -like "*Microsoft Visual Studio Code*" })
+If (-not ($CodeInstalled)) {
   Start-Process "winget" -ArgumentList "install --id Microsoft.VisualStudioCode-User-x64 --silent" -Wait -NoNewWindow
 }
