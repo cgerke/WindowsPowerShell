@@ -98,20 +98,7 @@ New-TemporaryFile | ForEach-Object {
   Start-Process "git" -ArgumentList "fetch --all" -Wait -NoNewWindow -WorkingDirectory "$_"
   Start-Process "git" -ArgumentList "checkout main" -Wait -NoNewWindow -WorkingDirectory "$_"
   Start-Process "git" -ArgumentList "push --set-upstream origin main" -Wait -NoNewWindow -WorkingDirectory "$_"
-  #Move-Item -Path "$_\.git" -Destination "$PWShell\" -Force -Verbose
-
-  $from = "$_\.git"
-  $to = "$PWShell\.git"
-  Get-ChildItem -Path $from -Recurse -File | ForEach-Object {
-      if ($_.PSIsContainer) {
-          $Destination = $_.Parent.FullName.Substring($from.length)
-      } Else {
-          $Destination = $_.FullName.Substring($from.length)
-      }
-      Copy-Item $_.fullname "$to$Destination" -Recurse -Force
-  }
-
-
+  Copy-Item -Path "$_\.git" -Destination "$PWShell\" -Recurse -Force -Verbose
   Set-Location "$PWShell"
   Start-Process "git" -ArgumentList "reset --hard origin/main" -Wait -NoNewWindow -WorkingDirectory "$PWShell"
   Set-Location "$PSRoot"
