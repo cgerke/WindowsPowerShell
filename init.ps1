@@ -79,9 +79,9 @@ Copy-Item -Path "$PWShell\.bashrc" "$env:HOMEPATH\.bashrc"
 # Remove-Item -Path "$PWShell\.git" -Recurse -Force -ErrorAction SilentlyContinue
 # Alternative due to the BUG "Remove-Item : Access to the cloud file is denied"
 "$PWShell\.git" | ForEach-Object {
-  Get-ChildItem -Recurse $_ -Force -file | ForEach-Object { Remove-Item $_ -Force -Verbose}
+  Get-ChildItem -Recurse $_ -Force -file | ForEach-Object { Remove-Item $_ -Force}
  # This gets paths in reverse order so you can remove from the parent down
-  (Get-Childitem $_ -Recurse -Force).Fullname | Sort-Object {$_.length} -Descending | Remove-Item -Force -Verbose;
+  (Get-Childitem $_ -Recurse -Force).Fullname | Sort-Object {$_.length} -Descending | Remove-Item -Force;
 }
 
 <# TODO Need to investigate this further, why does this environment var
@@ -102,7 +102,7 @@ New-TemporaryFile | ForEach-Object {
 
   $from = "$_\.git"
   $to = "$PWShell\.git"
-  Get-ChildItem -Path $from -Recurse -File | % {
+  Get-ChildItem -Path $from -Recurse -File | ForEach-Object {
       if ($_.PSIsContainer) {
           $Destination = $_.Parent.FullName.Substring($from.length)
       } Else {
