@@ -23,15 +23,13 @@ try
     Get-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" | Where-Object state -NE 'Installed' | Enable-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" -All -NoRestart
 
   } -Verb RunAs –ErrorAction Ignore
-}
-catch [System.InvalidOperationException]
-{
-  If ( $_.Exception.Message -like "*canceled*" )
-  {
-    "Skipped"
-  } Else {
-    "Error"
-  }
+} catch [System.InvalidOperationException] {
+    If ( $_.Exception.Message -like "*canceled*" )
+    {
+      "Skipped"
+    } Else {
+      "Error"
+    }
 }
 
 # Paths
@@ -42,10 +40,8 @@ Remove-Item -Path $Profile -Force -ErrorAction SilentlyContinue
 
 # Repositories
 "PSGallery" | ForEach-Object -Process {
-  if (-not (Get-PSRepository -Name "$_"))
-  {
-    Set-PSRepository -Name "$_" -InstallationPolicy Trusted
-  }
+if (-not (Get-PSRepository -Name "$_")) {
+  Set-PSRepository -Name "$_" -InstallationPolicy Trusted
 }
 
 # Package Provider (Requires PSGallery Trust)
@@ -55,8 +51,7 @@ Remove-Item -Path $Profile -Force -ErrorAction SilentlyContinue
 
 # Modules (Requires Nuget)
 "PowerShellGet", "oh-my-posh", "posh-git", "Posh-SSH", "PSScriptAnalyzer", "Pester", "Plaster", "PSSudo" | ForEach-Object -Process {
-  if (-not (Get-Module -ListAvailable -Name "$_"))
-  {
+  if (-not (Get-Module -ListAvailable -Name "$_")) {
     Install-Module "$_" -Scope CurrentUser -Force -Confirm:$false
   }
 }
@@ -78,8 +73,7 @@ If (-not ($winget))
 
 # Git
 $git = $(Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object { $_.DisplayName -like "*Git*" })
-If (-not ($git))
-{
+If (-not ($git)) {
   Start-Process "winget" -ArgumentList "install --id Git.Git --silent" -Wait -NoNewWindow
 }
 
@@ -123,16 +117,13 @@ New-TemporaryFile | ForEach-Object {
 
 # Windows Terminal
 $wt = $(Get-AppxPackage -Name "Microsoft.WindowsTerminal")
-If (-not ($wt))
-{
+If (-not ($wt)) {
   Start-Process "winget" -ArgumentList "install --id Microsoft.WindowsTerminal --silent" -Wait -NoNewWindow
   Copy-Item -Path "$PWShell\settings.json" "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
 }
 
-
 # VSCode
 $vscode = $(Get-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object { $_.DisplayName -like "*Microsoft Visual Studio Code*" })
-If (-not ($vscode))
-{
+If (-not ($vscode)) {
   Start-Process "winget" -ArgumentList "install --id Microsoft.VisualStudioCode-User-x64 --silent" -Wait -NoNewWindow
 }
