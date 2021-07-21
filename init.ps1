@@ -27,7 +27,7 @@ try {
 }
 
 # Paths
-New-Item -Path $Profile -Type File
+New-Item -Path $Profile -Type File -ErrorAction Ignore
 $PSRoot = Split-Path ((Get-Item $profile).DirectoryName) -Parent
 $PWShell = "$PSRoot\WindowsPowerShell"
 Remove-Item -Path $Profile -Force -ErrorAction SilentlyContinue
