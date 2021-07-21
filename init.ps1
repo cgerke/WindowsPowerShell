@@ -79,11 +79,10 @@ Copy-Item -Path "$PWShell\.bashrc" "$env:HOMEPATH\.bashrc"
 # Remove-Item -Path "$PWShell\.git" -Recurse -Force -ErrorAction SilentlyContinue
 # Alternative due to the BUG "Remove-Item : Access to the cloud file is denied"
 "$PWShell\.git" | ForEach-Object {
-  Get-ChildItem -Recurse $_ -force -file | ForEach-Object { Remove-Item $_ -Force -Verbose}
+  Get-ChildItem -Recurse $_ -Force -file | ForEach-Object { Remove-Item $_ -Force -Verbose}
  # This gets paths in reverse order so you can remove from the parent down
   (Get-Childitem $_ -Recurse -Force).Fullname | Sort-Object {$_.length} -Descending | Remove-Item -Force -Verbose;
 }
-[System.IO.Directory]::Delete("$PWShell\.git",$true)
 
 <# TODO Need to investigate this further, why does this environment var
 cause git init to fail? Should I just (temporarily remove HOMEPATH)
@@ -99,7 +98,20 @@ New-TemporaryFile | ForEach-Object {
   Start-Process "git" -ArgumentList "fetch --all" -Wait -NoNewWindow -WorkingDirectory "$_"
   Start-Process "git" -ArgumentList "checkout main" -Wait -NoNewWindow -WorkingDirectory "$_"
   Start-Process "git" -ArgumentList "push --set-upstream origin main" -Wait -NoNewWindow -WorkingDirectory "$_"
-  Move-Item -Path "$_\.git" -Destination "$PWShell\" -Force -Verbose
+  #Move-Item -Path "$_\.git" -Destination "$PWShell\" -Force -Verbose
+
+  $from = "$_\.git"
+  $to = "$PWShell\.git"
+  Get-ChildItem -Path $from -Recurse -File | % {
+      if ($_.PSIsContainer) {
+          $Destination = $_.Parent.FullName.Substring($from.length)
+      } Else {
+          $Destination = $_.FullName.Substring($from.length)
+      }
+      Copy-Item $_.fullname "$to$Destination" -Recurse -Force
+  }
+
+
   Set-Location "$PWShell"
   Start-Process "git" -ArgumentList "reset --hard origin/main" -Wait -NoNewWindow -WorkingDirectory "$PWShell"
   Set-Location "$PSRoot"
