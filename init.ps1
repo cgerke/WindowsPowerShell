@@ -12,22 +12,15 @@ try {
     # SSH
     $Registry = 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU'
     Set-ItemProperty $Registry UseWUserver -Value 0 -ErrorAction Ignore
-    Get-WindowsCapability -Name 'OpenSSH.Client*' -Online |
-    Where-Object state -NE 'Installed' |
-    Add-WindowsCapability -Online
+    Get-WindowsCapability -Name 'OpenSSH.Client*' -Online | Where-Object state -NE 'Installed' | Add-WindowsCapability -Online
     Set-ItemProperty $Registry UseWUserver -Value 1
     # Telnet
-    Get-WindowsOptionalFeature -Online -FeatureName "TelnetClient" |
-    Where-Object state -NE 'Installed' |
-    Enable-WindowsOptionalFeature -Online -FeatureName "TelnetClient" -NoRestart
+    Get-WindowsOptionalFeature -Online -FeatureName 'TelnetClient' | Where-Object state -NE 'Installed' | Enable-WindowsOptionalFeature -Online -FeatureName 'TelnetClient' -NoRestart
     #Sandbox
-    Get-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" |
-    Where-Object state -NE 'Installed' |
-    Enable-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" -All -NoRestart
+    Get-WindowsOptionalFeature -Online -FeatureName 'Containers-DisposableClientVM' | Where-Object state -NE 'Installed' | Enable-WindowsOptionalFeature -Online -FeatureName 'Containers-DisposableClientVM' -All -NoRestart
   } -Verb RunAs –ErrorAction Ignore
-} catch [System.InvalidOperationException] {
-    If ( $_.Exception.Message -like "*canceled*" )
-    {
+} catch {
+    If ( $_.Exception.Message -like "*canceled*" ) {
       "Skipped"
     } Else {
       "Error"
