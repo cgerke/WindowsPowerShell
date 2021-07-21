@@ -12,15 +12,11 @@ try
     -noprofile
     # SSH
     $Registry = 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU'
-    If ( Test-Path -Path $Registry ){
-      Set-ItemProperty $Registry UseWUserver -Value 0
-    }
+    Set-ItemProperty $Registry UseWUserver -Value 0 -ErrorAction Ignore
     Get-WindowsCapability -Name 'OpenSSH.Client*' -Online |
     Where-Object state -NE 'Installed' |
     Add-WindowsCapability -Online
-    If ( Test-Path -Path $Registry ){
-      Set-ItemProperty $Registry UseWUserver -Value 1
-    }
+    Set-ItemProperty $Registry UseWUserver -Value 1
 
     # Telnet
     Get-WindowsOptionalFeature -Online -FeatureName "TelnetClient" |
@@ -38,7 +34,9 @@ catch [System.InvalidOperationException]
 {
   If ( $_.Exception.Message -like "*canceled*" )
   {
-    Continue
+    "Skipped"
+  } Else {
+    "Error"
   }
 }
 
@@ -62,8 +60,7 @@ Remove-Item -Path $Profile -Force -ErrorAction SilentlyContinue
 }
 
 # Modules (Requires Nuget)
-"PowerShellGet", "oh-my-posh", "posh-git", "Posh-SSH", "PSScriptAnalyzer", "Pester", "Plaster", "PSSudo" |
-ForEach-Object -Process {
+"PowerShellGet", "oh-my-posh", "posh-git", "Posh-SSH", "PSScriptAnalyzer", "Pester", "Plaster", "PSSudo" | ForEach-Object -Process {
   if (-not (Get-Module -ListAvailable -Name "$_"))
   {
     Install-Module "$_" -Scope CurrentUser -Force -Confirm:$false
@@ -86,8 +83,7 @@ If (-not ($winget))
 }
 
 # Git
-$git = $(Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* |
-Where-Object { $_.DisplayName -like "*Git*" })
+$git = $(Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object { $_.DisplayName -like "*Git*" })
 If (-not ($git))
 {
   Start-Process "winget" -ArgumentList "install --id Git.Git --silent" -Wait -NoNewWindow
@@ -101,10 +97,8 @@ Copy-Item -Path "$PWShell\.bashrc" "$env:HOMEPATH\.bashrc"
 # Fetch REPO
 # Remove-Item -Path "$PWShell\.git" -Recurse -Force -ErrorAction SilentlyContinue
 # BUG: "Remove-Item : Access to the cloud file is denied." This simply removes files recursively.
-"$PWShell\.git" |
-ForEach-Object {
-  Get-ChildItem -Recurse $_ -Force -File |
-  ForEach-Object {
+"$PWShell\.git" | ForEach-Object {
+  Get-ChildItem -Recurse $_ -Force -File | ForEach-Object {
     Remove-Item $_.FullName -Force
   }
 }
@@ -114,8 +108,7 @@ cause git init to fail? Should I just (temporarily remove HOMEPATH)
 Remove-Item Env:\HOMEPATH
 -or #>
 $GitRepo = "https://github.com/cgerke/WindowsPowerShell"
-New-TemporaryFile |
-ForEach-Object {
+New-TemporaryFile | ForEach-Object {
   Remove-Item "$_" -Force -ErrorAction SilentlyContinue
   New-Item -Path "$_" -ItemType Directory -Force
   Set-Location -Path "$_"
@@ -144,8 +137,7 @@ If (-not ($wt))
 
 
 # VSCode
-$vscode = $(Get-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* |
-Where-Object { $_.DisplayName -like "*Microsoft Visual Studio Code*" })
+$vscode = $(Get-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object { $_.DisplayName -like "*Microsoft Visual Studio Code*" })
 If (-not ($vscode))
 {
   Start-Process "winget" -ArgumentList "install --id Microsoft.VisualStudioCode-User-x64 --silent" -Wait -NoNewWindow
