@@ -76,7 +76,6 @@ If (-not ($winget))
     $Uri = "https://github.com/microsoft/winget-cli/releases/download/v1.0.11692/$Msix"
     Invoke-WebRequest -Uri $Uri -OutFile "$PWShell\$Msix"
     Add-AppxPackage -Path "$PWShell\$Msix"
-    #Exit 1
   }
 }
 
@@ -93,7 +92,6 @@ Copy-Item -Path "$PWShell\git-prompt.sh" "$env:HOMEPATH\.config\git\git-prompt.s
 Copy-Item -Path "$PWShell\.bashrc" "$env:HOMEPATH\.bashrc"
 
 # Fetch REPO
-# Remove-Item -Path "$PWShell\.git" -Recurse -Force -ErrorAction SilentlyContinue
 # BUG: "Remove-Item : Access to the cloud file is denied." This simply removes files recursively.
 "$PWShell\.git" | ForEach-Object {
   Get-ChildItem -Recurse $_ -Force -File |
@@ -122,8 +120,6 @@ New-TemporaryFile | ForEach-Object {
   Start-Process "git" -ArgumentList "reset --hard origin/main" -Wait -NoNewWindow -WorkingDirectory "$PWShell"
   Set-Location "$PSRoot"
   Set-Location "$PWShell"
-  Add-Type -AssemblyName System.Windows.Forms
-  [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
 }
 
 # Windows Terminal
