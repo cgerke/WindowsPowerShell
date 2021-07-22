@@ -17,7 +17,7 @@ try {
     Get-WindowsOptionalFeature -Online -FeatureName 'TelnetClient' | Where-Object state -NE 'Installed' | Enable-WindowsOptionalFeature -Online -FeatureName 'TelnetClient' -NoRestart
     #Sandbox
     Get-WindowsOptionalFeature -Online -FeatureName 'Containers-DisposableClientVM' | Where-Object state -NE 'Installed' | Enable-WindowsOptionalFeature -Online -FeatureName 'Containers-DisposableClientVM' -All -NoRestart
-  } -Verb RunAs –ErrorAction Ignore
+  } -Verb RunAs -ErrorAction Ignore
 } catch {
     If ( $_.Exception.Message -like "*canceled*" ) {
       "Skipped"
