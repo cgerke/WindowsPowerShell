@@ -15,7 +15,8 @@
 			"**/PSScriptAnalyzer":true,
 			"**/PSSudo":true,
 			"**/Scripts":true,
-			"**/*.msixbundle":true
+			"**/*.msixbundle":true,
+			"**/*.appxbundle":true
 		},
 		"powershell.codeFormatting.autoCorrectAliases": true,
 		"powershell.codeFormatting.trimWhitespaceAroundPipe": true,
