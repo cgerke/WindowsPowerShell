@@ -1,8 +1,8 @@
 <#
 .Synopsis
-  Setup WindowsPowerShell on Windows
+  Setup Windows environment.
 .DESCRIPTION
-  Invoke-Expression $(Invoke-WebRequest https://raw.githubusercontent.com/cgerke/WindowsPowerShell/main/init.ps1)
+  Setup WindowsPowerShell on Windows along with some tools.
 #>
 
 # Tools
@@ -52,7 +52,10 @@ Remove-Item -Path $Profile -Force -ErrorAction SilentlyContinue
 }
 
 # Modules (Requires Nuget)
-"PowerShellGet", "oh-my-posh", "posh-git", "Posh-SSH", "PSScriptAnalyzer", "Pester", "Plaster", "PSSudo" |
+"PowerShellGet",
+"oh-my-posh","posh-git","Posh-SSH",
+"PSScriptAnalyzer", "Pester", "Plaster",
+"PSSudo" |
 ForEach-Object -Process {
   if (-not (Get-Module -ListAvailable -Name "$_")) {
     Install-Module "$_" -Scope CurrentUser -Force -Confirm:$false
@@ -121,10 +124,11 @@ New-TemporaryFile | ForEach-Object {
 }
 
 # Windows Terminal
-$wt = $(Get-AppxPackage -Name "Microsoft.WindowsTerminal")
-If (-not ($wt)) {
+$WindowsTerminal = $(Get-AppxPackage -Name "Microsoft.WindowsTerminal")
+$WTSettings = "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
+If (-not ($WindowsTerminal)) {
   Start-Process "winget" -ArgumentList "install --id Microsoft.WindowsTerminal --silent" -Wait -NoNewWindow
-  Copy-Item -Path "$PWShell\settings.json" "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
+  Copy-Item -Path "$PWShell\settings.json" $WTSettings
 }
 
 # VSCode
