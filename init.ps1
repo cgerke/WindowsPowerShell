@@ -6,18 +6,18 @@
 #>
 
 # Tools
-$WUServer = 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU'
 try {
   Start-Process -FilePath powershell.exe -ArgumentList {
     -noprofile
     # Disable enterprise Windows Update Server temporarily
-    $WUServer = 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU'
-    If (Get-ItemProperty -Path $WUServer UseWUserver){ Set-ItemProperty -Path $WUServer UseWUserver -Value 0 -ErrorAction Ignore }
+    $WUPolicy = 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU'
+    $WUServer = $(Get-ItemProperty -Path $WUServer -Name UseWUserver -ErrorAction Ignore)
+    If ($WUServer){ Set-ItemProperty -Path $WUPolicy UseWUserver -Value 0 -ErrorAction Ignore }
     # SSH
     Get-WindowsCapability -Name 'OpenSSH.Client*' -Online |
     Where-Object state -NE 'Installed' |
     Add-WindowsCapability -Online
-    Set-ItemProperty -Path $WUServer UseWUserver -Value 1 -ErrorAction Ignore
+    Set-ItemProperty -Path $WUPolicy UseWUserver -Value 1 -ErrorAction Ignore
     # Telnet and Sandbox
     $Feature = 'TelnetClient', 'Containers-DisposableClientVM'
     foreach($FeatureName in $Feature) {
@@ -25,7 +25,8 @@ try {
       Where-Object state -NE 'Enabled' |
       Enable-WindowsOptionalFeature -Online -FeatureName $FeatureName -All -NoRestart
     }
-    If (Get-ItemProperty -Path $WUServer UseWUserver){ Set-ItemProperty -Path $WUServer UseWUserver -Value 1 -ErrorAction Ignore }
+    If ($WUServer){ Set-ItemProperty -Path $WUServer UseWUserver -Value 1 -ErrorAction Ignore }
+
   } -Verb RunAs -ErrorAction Ignore
 } catch {
     If ( $_.Exception.Message -like "*canceled*" ) {
