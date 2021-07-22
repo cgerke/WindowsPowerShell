@@ -11,13 +11,13 @@ try {
     -noprofile
     # Disable enterprise Windows Update Server temporarily
     $WUPolicy = 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU'
-    $WUServer = $(Get-ItemProperty -Path $WUServer -Name UseWUserver -ErrorAction Ignore)
+    $WUServer = $(Get-ItemProperty -Path $WUPolicy -Name UseWUserver -ErrorAction Ignore)
     If ($WUServer){ Set-ItemProperty -Path $WUPolicy UseWUserver -Value 0 -ErrorAction Ignore }
     # SSH
     Get-WindowsCapability -Name 'OpenSSH.Client*' -Online |
     Where-Object state -NE 'Installed' |
     Add-WindowsCapability -Online
-    Set-ItemProperty -Path $WUPolicy UseWUserver -Value 1 -ErrorAction Ignore
+    Set-ItemProperty -Path $WUSerWUPolicyver UseWUserver -Value 1 -ErrorAction Ignore
     # Telnet and Sandbox
     $Feature = 'TelnetClient', 'Containers-DisposableClientVM'
     foreach($FeatureName in $Feature) {
