@@ -6,13 +6,14 @@
 #>
 
 # Tools
-# Disable enterprise Windows Update Server temporarily
 $WUServer = 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU'
 try {
   Start-Process -FilePath powershell.exe -ArgumentList {
     -noprofile
+    # Disable enterprise Windows Update Server temporarily
+    $WUServer = 'HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU'
+    If (Get-ItemProperty -Path $WUServer UseWUserver){ Set-ItemProperty -Path $WUServer UseWUserver -Value 0 -ErrorAction Ignore }
     # SSH
-    Set-ItemProperty -Path $WUServer UseWUserver -Value 0 -ErrorAction Ignore
     Get-WindowsCapability -Name 'OpenSSH.Client*' -Online |
     Where-Object state -NE 'Installed' |
     Add-WindowsCapability -Online
@@ -24,6 +25,7 @@ try {
       Where-Object state -NE 'Enabled' |
       Enable-WindowsOptionalFeature -Online -FeatureName $FeatureName -All -NoRestart
     }
+    If (Get-ItemProperty -Path $WUServer UseWUserver){ Set-ItemProperty -Path $WUServer UseWUserver -Value 1 -ErrorAction Ignore }
   } -Verb RunAs -ErrorAction Ignore
 } catch {
     If ( $_.Exception.Message -like "*canceled*" ) {
