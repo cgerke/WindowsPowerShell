@@ -17,7 +17,6 @@ try {
     Get-WindowsCapability -Name 'OpenSSH.Client*' -Online |
     Where-Object state -NE 'Installed' |
     Add-WindowsCapability -Online
-    Set-ItemProperty -Path $WUSerWUPolicyver UseWUserver -Value 1 -ErrorAction Ignore
     # Telnet and Sandbox
     $Feature = 'TelnetClient', 'Containers-DisposableClientVM'
     foreach($FeatureName in $Feature) {
@@ -26,7 +25,6 @@ try {
       Enable-WindowsOptionalFeature -Online -FeatureName $FeatureName -All -NoRestart
     }
     If ($WUServer){ Set-ItemProperty -Path $WUServer UseWUserver -Value 1 -ErrorAction Ignore }
-
   } -Verb RunAs -ErrorAction Ignore
 } catch {
     If ( $_.Exception.Message -like "*canceled*" ) {
